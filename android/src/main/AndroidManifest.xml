@@ -1,3 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="org.dasfoo.flutter_sentry">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="org.dasfoo.flutter_sentry">
+    <!--
+    Per https://docs.sentry.io/platforms/android/#requirements, to support NDK, minimal required API
+    level is 21. However, since we target 16, we use this workaround which will drop NDK support on
+    devices with API level < 21.
+    -->
+    <uses-sdk
+        tools:overrideLibrary="io.sentry.android"/>
 </manifest>
