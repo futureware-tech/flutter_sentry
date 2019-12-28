@@ -2,10 +2,18 @@ PODS:
   - Flutter (1.0.0)
   - flutter_sentry (0.0.1):
     - Flutter
+    - Sentry (~> 4.4)
+  - Sentry (4.4.3):
+    - Sentry/Core (= 4.4.3)
+  - Sentry/Core (4.4.3)
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_sentry (from `.symlinks/plugins/flutter_sentry/ios`)
+
+SPEC REPOS:
+  trunk:
+    - Sentry
 
 EXTERNAL SOURCES:
   Flutter:
@@ -15,7 +23,8 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
-  flutter_sentry: a87cb3c07c25f2f789d564d5712bd26ca3508f2f
+  flutter_sentry: 811022a26ad49240191d2317b8d605a5c1f752fb
+  Sentry: 14bdd673870e8cf64932b149fad5bbbf39a9b390
 
 PODFILE CHECKSUM: 1b66dae606f75376c5f2135a8290850eeb09ae83
 
