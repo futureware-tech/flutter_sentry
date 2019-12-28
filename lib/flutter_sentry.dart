@@ -5,11 +5,28 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:sentry/sentry.dart';
 
+/// API entrypoint for Sentry.io Flutter plugin.
 class FlutterSentry {
   static const MethodChannel _channel = const MethodChannel('flutter_sentry');
 
+  /// Cause a crash on the native platform (Android or iOS). Unlike most Dart
+  /// [Exception]s, such crashes are usually fatal for application. The use case
+  /// here is to cause a fatal crash and test reporting of this edge condition
+  /// to Sentry.io.
+  ///
+  /// NOTE: if Sentry client has failed to initialize, this method throws a Dart
+  /// exception and does nothing.
   static Future<void> nativeCrash() => _channel.invokeMethod('nativeCrash');
 
+  /// A wrapper function for `runApp()` application code. It intercepts few
+  /// different error conditions:
+  ///
+  /// - uncaught exceptions in the zone;
+  /// - uncaught exceptions that has been propagated to the current Dart
+  ///   isolate;
+  /// - FlutterError errors (such as layout errors);
+  ///
+  /// and reports them to Sentry.io.
   static Future<T> wrap<T>(Future<T> Function() f, {@required String dsn}) {
     final sentry = SentryClient(dsn: dsn);
     return runZoned<Future<T>>(() async {

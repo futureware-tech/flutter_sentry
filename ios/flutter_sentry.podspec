@@ -5,9 +5,9 @@
 Pod::Spec.new do |s|
   s.name             = 'flutter_sentry'
   s.version          = '0.0.1'
-  s.summary          = 'Sentry plugin for Flutter.'
+  s.summary          = 'Sentry.io plugin for Flutter.'
   s.description      = <<-DESC
-  Sentry plugin for Flutter.
+Sentry.io error reporting plugin for Flutter, offering tight integration with Flutter and native code.
                        DESC
   s.homepage         = 'https://github.com/dasfoo/flutter_sentry'
   s.license          = { :file => '../LICENSE' }

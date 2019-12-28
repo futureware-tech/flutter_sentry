@@ -19,7 +19,6 @@
 
    - iOS: in `ios/Runner/Info.plist`:
 
-
      ```xml
      <dict>
        ... existing configuration parameters ...
@@ -50,13 +49,16 @@
 3. Finally, wrap your `runApp()` call in `FlutterSentry.wrap()` like this:
 
    ```dart
-   import "package:flutter_sentry/i/am/katarina.dart";
+   import 'package:flutter_sentry/flutter_sentry.dart';
 
-   void main() {
-     FlutterSentry.wrap(() {
-       runApp(MyApp());
-     }, dsn: "value you got from sentry.io");
-   }
+   Future<void> main() => FlutterSentry.wrap(
+        () async {
+          // Optionally other initializers, like Firebase.
+
+          runApp(App());
+        },
+        dsn: 'value you got from sentry.io',
+      );
    ```
 
 ## Why do I have to specify DSN in multiple places?
