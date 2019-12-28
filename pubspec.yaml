@@ -1,8 +1,8 @@
 name: flutter_sentry
-description: A new flutter plugin project.
+description: Sentry plugin for Flutter.
 version: 0.0.1
-author:
-homepage:
+author: Katarina Sheremet
+homepage: https://github.com/dasfoo/flutter_sentry
 
 environment:
   sdk: ">=2.1.0 <3.0.0"

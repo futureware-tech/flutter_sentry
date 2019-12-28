@@ -5,16 +5,18 @@
 Pod::Spec.new do |s|
   s.name             = 'flutter_sentry'
   s.version          = '0.0.1'
-  s.summary          = 'A new flutter plugin project.'
+  s.summary          = 'Sentry plugin for Flutter.'
   s.description      = <<-DESC
-A new flutter plugin project.
+  Sentry plugin for Flutter.
                        DESC
-  s.homepage         = 'http://example.com'
+  s.homepage         = 'https://github.com/dasfoo/flutter_sentry'
   s.license          = { :file => '../LICENSE' }
-  s.author           = { 'Your Company' => 'email@example.com' }
+  s.author           = { 'Katarina Sheremet' => 'katarina@sheremet.ch' }
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'
+  s.dependency 'Sentry', '~> 4.4'
+  s.static_framework = true
   s.platform = :ios, '8.0'
 
   # Flutter.framework does not contain a i386 slice. Only x86_64 simulators are supported.
