@@ -1,5 +1,6 @@
 import Flutter
 import UIKit
+import Sentry
 
 public class SwiftFlutterSentryPlugin: NSObject, FlutterPlugin {
   public static func register(with registrar: FlutterPluginRegistrar) {
@@ -9,6 +10,6 @@ public class SwiftFlutterSentryPlugin: NSObject, FlutterPlugin {
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-    result("iOS " + UIDevice.current.systemVersion)
+    Client.shared?.crash()
   }
 }
