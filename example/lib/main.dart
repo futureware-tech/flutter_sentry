@@ -7,17 +7,20 @@ void main() => FlutterSentry.wrap(
           appBar: AppBar(
             title: const Text('Flutter Sentry plugin example app'),
           ),
-          body: Column(
-            children: <Widget>[
-              RaisedButton(
-                child: Text('Cause a native crash'),
-                onPressed: FlutterSentry.nativeCrash,
-              ),
-              RaisedButton(
-                child: Text('Throw uncaught exception'),
-                onPressed: () => throw Exception('Uncaught exception'),
-              ),
-            ],
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                RaisedButton(
+                  child: Text('Cause a native crash'),
+                  onPressed: FlutterSentry.nativeCrash,
+                ),
+                RaisedButton(
+                  child: Text('Throw uncaught exception'),
+                  onPressed: () => throw Exception('Uncaught exception'),
+                ),
+              ],
+            ),
           ),
         ),
       )),
