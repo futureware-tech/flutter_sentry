@@ -1,6 +1,6 @@
 name: flutter_sentry
 description: Sentry plugin for Flutter.
-version: 0.0.1
+version: 0.0.1+1
 homepage: https://github.com/dasfoo/flutter_sentry
 
 environment:
