@@ -1,3 +1,11 @@
+## 0.0.3
+
+* Remove `pubspec.lock` from version control.
+* Add FlutterSentry.breadcrumbs tracker to save a limited number of most recent
+  breadcrumbs, which will be sent to Sentry.io with the next error report.
+* Add FlutterSentryNavigatorObserver allowing to track navigation events in
+  application.
+
 ## 0.0.2
 
 * Add initilize method with dsn to init SentryClient.
