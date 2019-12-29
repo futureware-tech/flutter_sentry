@@ -69,6 +69,20 @@ class FlutterSentry {
         );
       };
 
+      final debugPrintWithoutBreadcrumbs = debugPrint;
+      debugPrint = (String message, {int wrapWidth}) {
+        debugPrintWithoutBreadcrumbs(message, wrapWidth: wrapWidth);
+        instance.breadcrumbs.add(Breadcrumb(
+          message,
+          DateTime.now().toUtc(),
+          category: 'debugPrint',
+          level: SeverityLevel.debug,
+          data: {
+            'wrapWidth': wrapWidth.toString(),
+          },
+        ));
+      };
+
       Isolate.current
           .addErrorListener(RawReceivePort((dynamic errorAndStacktrace) async {
         // This must be a 2-element list per documentation:

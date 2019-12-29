@@ -1,3 +1,8 @@
+## Unreleased
+
+* Intercept `debugPrint()` in `wrap()` and add the message to breadcrumbs for
+  the next event to upload.
+
 ## 0.1.0
 
 * Remove `pubspec.lock` from version control.

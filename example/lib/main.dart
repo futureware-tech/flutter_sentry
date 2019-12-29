@@ -21,7 +21,10 @@ void main() => FlutterSentry.wrap(
                   child: Text('Cause a native crash'),
                 ),
                 RaisedButton(
-                  onPressed: () => throw Exception('Uncaught exception'),
+                  onPressed: () {
+                    debugPrint('Throwing an uncaught exception');
+                    throw Exception('Uncaught exception');
+                  },
                   child: const Text('Throw uncaught exception'),
                 ),
                 RaisedButton(
