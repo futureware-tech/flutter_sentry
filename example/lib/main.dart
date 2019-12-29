@@ -11,13 +11,13 @@ void main() => FlutterSentry.wrap(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                RaisedButton(
-                  child: Text('Cause a native crash'),
+                const RaisedButton(
                   onPressed: FlutterSentry.nativeCrash,
+                  child: Text('Cause a native crash'),
                 ),
                 RaisedButton(
-                  child: Text('Throw uncaught exception'),
                   onPressed: () => throw Exception('Uncaught exception'),
+                  child: const Text('Throw uncaught exception'),
                 ),
               ],
             ),
