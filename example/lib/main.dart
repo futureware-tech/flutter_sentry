@@ -3,6 +3,11 @@ import 'package:flutter_sentry/flutter_sentry.dart';
 
 void main() => FlutterSentry.wrap(
       () async => runApp(MaterialApp(
+        navigatorObservers: [
+          FlutterSentryNavigatorObserver(
+            breadcrumbs: FlutterSentry.instance.breadcrumbs,
+          ),
+        ],
         home: Scaffold(
           appBar: AppBar(
             title: const Text('Flutter Sentry plugin example app'),

@@ -26,8 +26,10 @@ jobs:
             false
           fi
       - run: flutter analyze
-      # TODO(dotdoom): uncomment once we have tests.
-      #- run: flutter test
+      - run: flutter test --coverage
+      - uses: codecov/codecov-action@v1
+        with:
+          token: "29429d21-5c5a-494c-8700-8afc1e082c85"
 
   build:
     needs: check
