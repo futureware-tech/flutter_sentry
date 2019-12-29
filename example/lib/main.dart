@@ -24,6 +24,12 @@ void main() => FlutterSentry.wrap(
                   onPressed: () => throw Exception('Uncaught exception'),
                   child: const Text('Throw uncaught exception'),
                 ),
+                RaisedButton(
+                  onPressed: () => FlutterSentry.instance.captureException(
+                    exception: Exception('Event'),
+                  ),
+                  child: const Text('Report an event to Sentry.io'),
+                ),
               ],
             ),
           ),
