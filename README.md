@@ -1,4 +1,4 @@
-# Sentry plugin for Flutter.
+# Sentry.io plugin for Flutter.
 
 [![pub package](https://img.shields.io/pub/v/flutter_sentry.svg)](https://pub.dev/packages/flutter_sentry)
 [![flutter build](https://github.com/dasfoo/flutter_sentry/workflows/flutter/badge.svg?branch=master&event=push)](https://github.com/dasfoo/flutter_sentry/actions?query=workflow%3Aflutter+branch%3Amaster)

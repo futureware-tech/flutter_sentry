@@ -5,7 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:sentry/sentry.dart';
 
-/// API entrypoint for Sentry.io Flutter plugin.
+/// API entrypoint for Sentry.io Flutter plugin. Start using Sentry.io by
+/// calling either [initialize] or [wrap] static methods.
 class FlutterSentry {
   static const MethodChannel _channel = const MethodChannel('flutter_sentry');
 
@@ -14,8 +15,9 @@ class FlutterSentry {
   /// here is to cause a fatal crash and test reporting of this edge condition
   /// to Sentry.io.
   ///
-  /// NOTE: if Sentry client has failed to initialize, this method throws a Dart
-  /// exception and does nothing.
+  /// NOTE: if native Sentry client has failed to initialize, this method throws
+  /// a Dart exception and does nothing (on iOS) or simply crashes the app
+  /// without reporting to Sentry.io (on Android).
   static Future<void> nativeCrash() => _channel.invokeMethod('nativeCrash');
 
   /// A wrapper function for `runApp()` application code. It intercepts few
@@ -27,6 +29,10 @@ class FlutterSentry {
   /// - FlutterError errors (such as layout errors);
   ///
   /// and reports them to Sentry.io.
+  ///
+  /// Note that this function calls for [FlutterSentry.initialize], and
+  /// therefore cannot be used more than once, or in combination with
+  /// [FlutterSentry.initialize].
   static Future<T> wrap<T>(Future<T> Function() f, {@required String dsn}) {
     initialize(dsn: dsn);
     return runZoned<Future<T>>(() async {
@@ -66,12 +72,16 @@ class FlutterSentry {
 
   static FlutterSentry _instance;
 
-  /// Get instance of the FlutterSentry.
+  /// Return the configured instance of [FlutterSentry] after it has been
+  /// initialized with [initialize] method, or `null` if the instance has not
+  /// been initialized.
   static FlutterSentry get instance => _instance;
 
   SentryClient _sentry;
 
-  /// Initialize FlutterSentry with dsn from Sentry.io.
+  /// Initialize [FlutterSentry] with [dsn] received from Sentry.io, making an
+  /// instance available via [instance] property. It is an [Error] to call this
+  /// method more than once during the application lifecycle.
   static initialize({@required String dsn}) {
     if (_instance == null) {
       _instance = FlutterSentry._(SentryClient(dsn: dsn));
