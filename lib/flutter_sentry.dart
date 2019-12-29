@@ -8,7 +8,12 @@ import 'package:sentry/sentry.dart';
 /// API entrypoint for Sentry.io Flutter plugin. Start using Sentry.io by
 /// calling either [initialize] or [wrap] static methods.
 class FlutterSentry {
-  static const MethodChannel _channel = const MethodChannel('flutter_sentry');
+  FlutterSentry._(SentryClient client) : _sentry = client;
+
+  static const MethodChannel _channel = MethodChannel('flutter_sentry');
+  static FlutterSentry _instance;
+
+  final SentryClient _sentry;
 
   /// Cause a crash on the native platform (Android or iOS). Unlike most Dart
   /// [Exception]s, such crashes are usually fatal for application. The use case
@@ -49,19 +54,22 @@ class FlutterSentry {
         );
       };
 
-      Isolate.current.addErrorListener(RawReceivePort((pair) async {
-        final List<String> errorAndStacktrace = pair;
-        debugPrint('Uncaught error in Flutter isolate: $errorAndStacktrace');
+      Isolate.current
+          .addErrorListener(RawReceivePort((dynamic errorAndStacktrace) async {
+        // This must be a 2-element list per documentation:
+        // https://api.dartlang.org/stable/2.7.0/dart-isolate/Isolate/addErrorListener.html
+        final dynamic error = errorAndStacktrace[0],
+            stackTrace = errorAndStacktrace[1];
+        debugPrint('Uncaught error in Flutter isolate: $error\n$stackTrace');
         await instance._sentry.captureException(
-          exception: errorAndStacktrace.first,
-          stackTrace: errorAndStacktrace.last == null
-              ? null
-              : StackTrace.fromString(errorAndStacktrace.last),
+          exception: error,
+          stackTrace:
+              stackTrace is String ? StackTrace.fromString(stackTrace) : null,
         );
       }).sendPort);
 
-      return await f();
-    }, onError: (exception, stackTrace) {
+      return f();
+    }, onError: (Object exception, StackTrace stackTrace) {
       debugPrint('Uncaught error in zone: $exception\n$stackTrace');
       instance._sentry.captureException(
         exception: exception,
@@ -70,26 +78,19 @@ class FlutterSentry {
     });
   }
 
-  static FlutterSentry _instance;
-
   /// Return the configured instance of [FlutterSentry] after it has been
   /// initialized with [initialize] method, or `null` if the instance has not
   /// been initialized.
   static FlutterSentry get instance => _instance;
 
-  SentryClient _sentry;
-
   /// Initialize [FlutterSentry] with [dsn] received from Sentry.io, making an
   /// instance available via [instance] property. It is an [Error] to call this
   /// method more than once during the application lifecycle.
-  static initialize({@required String dsn}) {
+  static void initialize({@required String dsn}) {
     if (_instance == null) {
       _instance = FlutterSentry._(SentryClient(dsn: dsn));
-      return _instance;
     } else {
       throw StateError('FlutterSentry has already been initialized');
     }
   }
-
-  FlutterSentry._(SentryClient client) : _sentry = client;
 }
