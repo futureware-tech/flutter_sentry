@@ -28,7 +28,7 @@ class FlutterSentry {
   ///
   /// and reports them to Sentry.io.
   static Future<T> wrap<T>(Future<T> Function() f, {@required String dsn}) {
-    final sentry = SentryClient(dsn: dsn);
+    initialize(dsn: dsn);
     return runZoned<Future<T>>(() async {
       // This is necessary to initialize Flutter method channels so that
       // our plugin can call into the native code. It also must be in the same
@@ -37,7 +37,7 @@ class FlutterSentry {
 
       FlutterError.onError = (details) {
         FlutterError.dumpErrorToConsole(details);
-        sentry.captureException(
+        instance._sentry.captureException(
           exception: details.exception,
           stackTrace: details.stack,
         );
@@ -46,7 +46,7 @@ class FlutterSentry {
       Isolate.current.addErrorListener(RawReceivePort((pair) async {
         final List<String> errorAndStacktrace = pair;
         debugPrint('Uncaught error in Flutter isolate: $errorAndStacktrace');
-        await sentry.captureException(
+        await instance._sentry.captureException(
           exception: errorAndStacktrace.first,
           stackTrace: errorAndStacktrace.last == null
               ? null
@@ -57,10 +57,29 @@ class FlutterSentry {
       return await f();
     }, onError: (exception, stackTrace) {
       debugPrint('Uncaught error in zone: $exception\n$stackTrace');
-      sentry.captureException(
+      instance._sentry.captureException(
         exception: exception,
         stackTrace: stackTrace,
       );
     });
   }
+
+  static FlutterSentry _instance;
+
+  /// Get instance of the FlutterSentry.
+  static FlutterSentry get instance => _instance;
+
+  SentryClient _sentry;
+
+  /// Initialize FlutterSentry with dsn from Sentry.io.
+  static initialize({@required String dsn}) {
+    if (_instance == null) {
+      _instance = FlutterSentry._(SentryClient(dsn: dsn));
+      return _instance;
+    } else {
+      throw StateError('FlutterSentry has already been initialized');
+    }
+  }
+
+  FlutterSentry._(SentryClient client) : _sentry = client;
 }
