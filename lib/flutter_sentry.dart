@@ -1,23 +1,29 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:isolate';
 
+import 'package:device_info/device_info.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:sentry/sentry.dart';
 
 import 'src/breadcrumb_tracker.dart';
+import 'src/flutter_event.dart';
 
 export 'src/navigator_observer.dart' show FlutterSentryNavigatorObserver;
 
 /// API entrypoint for Sentry.io Flutter plugin. Start using Sentry.io by
 /// calling either [initialize] or [wrap] static methods.
 class FlutterSentry {
-  FlutterSentry._(SentryClient client) : _sentry = client;
+  FlutterSentry._(SentryClient client) : _sentry = client {
+    _initializeContexts();
+  }
 
   static const MethodChannel _channel = MethodChannel('flutter_sentry');
   static FlutterSentry _instance;
 
   final SentryClient _sentry;
+  final _deviceContext = <String, dynamic>{};
 
   /// Breadcrumbs collected so far for reporting in the next event.
   // This type is inferred: https://github.com/dart-lang/linter/issues/1319.
@@ -57,7 +63,7 @@ class FlutterSentry {
 
       FlutterError.onError = (details) {
         FlutterError.dumpErrorToConsole(details);
-        instance._sentry.captureException(
+        instance.captureException(
           exception: details.exception,
           stackTrace: details.stack,
         );
@@ -70,7 +76,7 @@ class FlutterSentry {
         final dynamic error = errorAndStacktrace[0],
             stackTrace = errorAndStacktrace[1];
         debugPrint('Uncaught error in Flutter isolate: $error\n$stackTrace');
-        await instance._sentry.captureException(
+        await instance.captureException(
           exception: error,
           stackTrace:
               stackTrace is String ? StackTrace.fromString(stackTrace) : null,
@@ -80,11 +86,26 @@ class FlutterSentry {
       return f();
     }, onError: (Object exception, StackTrace stackTrace) {
       debugPrint('Uncaught error in zone: $exception\n$stackTrace');
-      instance._sentry.captureException(
+      instance.captureException(
         exception: exception,
         stackTrace: stackTrace,
       );
     });
+  }
+
+  /// Reports the [exception] and optionally its [stackTrace] to Sentry.io. It
+  /// also reports device info and [breadcrumbs].
+  Future<SentryResponse> captureException({
+    @required dynamic exception,
+    dynamic stackTrace,
+  }) {
+    final event = FlutterEvent(
+      exception: exception,
+      stackTrace: stackTrace,
+      breadcrumbs: breadcrumbs.breadcrumbs.toList(),
+      deviceContext: _deviceContext,
+    );
+    return _sentry.capture(event: event);
   }
 
   /// Return the configured instance of [FlutterSentry] after it has been
@@ -97,9 +118,53 @@ class FlutterSentry {
   /// method more than once during the application lifecycle.
   static void initialize({@required String dsn}) {
     if (_instance == null) {
-      _instance = FlutterSentry._(SentryClient(dsn: dsn));
+      _instance = FlutterSentry._(
+        SentryClient(dsn: dsn),
+      );
     } else {
       throw StateError('FlutterSentry has already been initialized');
     }
+  }
+
+  Future<void> _initializeContexts() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    _deviceContext.addAll(await _getDeviceInfo());
+    // TODO(ksheremet): initialize os and app contexts.
+    // TODO(ksheremet): make contexts static (lazy) because they don't change.
+  }
+
+  static Future<Map<String, dynamic>> _getDeviceInfo() async {
+    final buildDeviceExtras = <String, dynamic>{};
+    final deviceInfo = DeviceInfoPlugin();
+
+    if (Platform.isAndroid) {
+      final androidInfo = await deviceInfo.androidInfo;
+      buildDeviceExtras.addAll(<String, dynamic>{
+        'device': androidInfo.device,
+        'manufacturer': androidInfo.manufacturer,
+        'brand': androidInfo.brand,
+        'simulator': !androidInfo.isPhysicalDevice,
+        'archs': androidInfo.supportedAbis,
+        'os': {
+          'version': androidInfo.version.release,
+          'build': androidInfo.id,
+          'name': 'Android',
+        },
+      });
+    }
+
+    if (Platform.isIOS) {
+      final iosInfo = await deviceInfo.iosInfo;
+      buildDeviceExtras.addAll(<String, dynamic>{
+        'device': iosInfo.model,
+        'family': iosInfo.systemName,
+        'arch': iosInfo.utsname.machine,
+        'version': iosInfo.systemVersion,
+      });
+      // TODO(ksheremet): Use it in "os" context.
+      //buildDeviceExtras['kernel_version'] = iosInfo.utsname.version;
+    }
+
+    return buildDeviceExtras;
   }
 }
