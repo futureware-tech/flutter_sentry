@@ -5,6 +5,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:sentry/sentry.dart';
 
+import 'src/breadcrumb_tracker.dart';
+
+export 'src/navigator_observer.dart' show FlutterSentryNavigatorObserver;
+
 /// API entrypoint for Sentry.io Flutter plugin. Start using Sentry.io by
 /// calling either [initialize] or [wrap] static methods.
 class FlutterSentry {
@@ -14,6 +18,11 @@ class FlutterSentry {
   static FlutterSentry _instance;
 
   final SentryClient _sentry;
+
+  /// Breadcrumbs collected so far for reporting in the next event.
+  // This type is inferred: https://github.com/dart-lang/linter/issues/1319.
+  // ignore: type_annotate_public_apis
+  final breadcrumbs = BreadcrumbTracker();
 
   /// Cause a crash on the native platform (Android or iOS). Unlike most Dart
   /// [Exception]s, such crashes are usually fatal for application. The use case
