@@ -1,6 +1,7 @@
 # Sentry plugin for Flutter.
 
 [![pub package](https://img.shields.io/pub/v/flutter_sentry.svg)](https://pub.dev/packages/flutter_sentry)
+[![flutter build](https://github.com/dasfoo/flutter_sentry/workflows/flutter/badge.svg?branch=master&event=push)](https://github.com/dasfoo/flutter_sentry/actions?query=workflow%3Aflutter+branch%3Amaster)
 
 **NOTE**: *While [sentry](https://pub.dev/packages/sentry) package provides a low-level functionality to report exceptions from Dart/Flutter code, flutter_sentry plugin (which also uses sentry package behind the scenes!) aims at full integration with Flutter ecosystem, automatically including Flutter application details in reports and catching crashes in native code, including other Flutter plugins and Flutter itself*
 
