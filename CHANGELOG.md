@@ -1,7 +1,8 @@
-## Unreleased
+## 0.2.0
 
 * Intercept `debugPrint()` in `wrap()` and add the message to breadcrumbs for
   the next event to upload.
+* Enable environment attributes in Dart exceptions.
 
 ## 0.1.0
 

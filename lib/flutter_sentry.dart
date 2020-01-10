@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:device_info/device_info.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:sentry/sentry.dart';
@@ -53,8 +54,20 @@ class FlutterSentry {
   /// Note that this function calls for [FlutterSentry.initialize], and
   /// therefore cannot be used more than once, or in combination with
   /// [FlutterSentry.initialize].
-  static Future<T> wrap<T>(Future<T> Function() f, {@required String dsn}) {
-    initialize(dsn: dsn);
+  static Future<T> wrap<T>(
+    Future<T> Function() f, {
+    @required String dsn,
+  }) {
+    var environment = 'debug';
+    if (kReleaseMode) {
+      environment = 'release';
+    } else if (kProfileMode) {
+      environment = 'profile';
+    }
+    initialize(
+      dsn: dsn,
+      environmentAttributes: Event(environment: environment),
+    );
     return runZoned<Future<T>>(() async {
       // This is necessary to initialize Flutter method channels so that
       // our plugin can call into the native code. It also must be in the same
@@ -130,10 +143,16 @@ class FlutterSentry {
   /// Initialize [FlutterSentry] with [dsn] received from Sentry.io, making an
   /// instance available via [instance] property. It is an [Error] to call this
   /// method more than once during the application lifecycle.
-  static void initialize({@required String dsn}) {
+  ///
+  /// [environmentAttributes] is optional and contains [Event] attributes that
+  /// are automatically mixed into all events captured through this client.
+  /// This event should contain static values that do not change from
+  /// event to event, for example, app environment (debug, production, profile),
+  /// the version of Dart/Flutter SDK, etc.
+  static void initialize({@required String dsn, Event environmentAttributes}) {
     if (_instance == null) {
       _instance = FlutterSentry._(
-        SentryClient(dsn: dsn),
+        SentryClient(dsn: dsn, environmentAttributes: environmentAttributes),
       );
     } else {
       throw StateError('FlutterSentry has already been initialized');
