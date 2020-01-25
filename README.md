@@ -12,7 +12,7 @@
 
    ```yaml
    dependencies:
-     flutter_sentry: ^0.2.0
+     flutter_sentry: ^0.2.1
    ```
 
 2. Find out a DSN value from Sentry.io and add it to native platforms:
