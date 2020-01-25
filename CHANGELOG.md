@@ -1,6 +1,7 @@
 ## Unreleased
 
 * Update README with new flutter_sentry version.
+* Filter `package:flutter` stack trace frames by default.
 
 ## 0.2.0
 
