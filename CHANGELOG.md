@@ -1,6 +1,8 @@
-## Unreleased
+## 0.2.1
 
-* Update README with new flutter_sentry version.
+* Update README with new `flutter_sentry` version.
+* Filter `package:flutter` stack trace frames by default.
+* Remove the use of deprecated method `getFlutterEngine`.
 
 ## 0.2.0
 

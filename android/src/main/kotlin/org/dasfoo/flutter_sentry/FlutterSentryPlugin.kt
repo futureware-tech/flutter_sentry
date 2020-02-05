@@ -1,7 +1,6 @@
 package org.dasfoo.flutter_sentry
 
-import android.nfc.FormatException
-import androidx.annotation.NonNull;
+import androidx.annotation.NonNull
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -10,12 +9,11 @@ import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.Registrar
 
 
-
 /** FlutterSentryPlugin */
-public class FlutterSentryPlugin: FlutterPlugin, MethodCallHandler {
+class FlutterSentryPlugin: FlutterPlugin, MethodCallHandler {
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-    val channel = MethodChannel(flutterPluginBinding.getFlutterEngine().getDartExecutor(), "flutter_sentry")
-    channel.setMethodCallHandler(FlutterSentryPlugin());
+    val channel = MethodChannel(flutterPluginBinding.binaryMessenger, "flutter_sentry")
+    channel.setMethodCallHandler(FlutterSentryPlugin())
   }
 
   // This static function is optional and equivalent to onAttachedToEngine. It supports the old
@@ -29,6 +27,7 @@ public class FlutterSentryPlugin: FlutterPlugin, MethodCallHandler {
   // in the same class.
   companion object {
     @JvmStatic
+    @Suppress("unused")
     fun registerWith(registrar: Registrar) {
       val channel = MethodChannel(registrar.messenger(), "flutter_sentry")
       channel.setMethodCallHandler(FlutterSentryPlugin())

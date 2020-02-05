@@ -132,8 +132,26 @@ class FlutterSentry {
       breadcrumbs: breadcrumbs.breadcrumbs.toList(),
       deviceContext: _deviceContext,
     );
-    return _sentry.capture(event: event);
+    return _sentry.capture(event: event, stackFrameFilter: stackFrameFilter);
   }
+
+  /// Filter for stack trace frames, applied after `Frame` objects are converted
+  /// to JSON representation but before they are sent to Sentry. See
+  /// [SentryClient.capture] for more information.
+  List<Map<String, dynamic>> Function(List<Map<String, dynamic>>)
+      stackFrameFilter = defaultStackFrameFilter;
+
+  /// Default filtering for Sentry JSON stack frames with Flutter-oriented
+  /// implementation, such as marking Flutter part of stacktrace as framework
+  /// stack trace to unclutter Sentry.io interface.
+  static List<Map<String, dynamic>> defaultStackFrameFilter(
+          List<Map<String, dynamic>> stack) =>
+      stack
+          .map<Map<String, dynamic>>((frame) =>
+              frame['abs_path'].toString().startsWith('package:flutter/')
+                  ? (frame..['in_app'] = false)
+                  : frame)
+          .toList();
 
   /// Return the configured instance of [FlutterSentry] after it has been
   /// initialized with [initialize] method, or `null` if the instance has not
