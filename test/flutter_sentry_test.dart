@@ -6,11 +6,11 @@ void main() {
     test('marks frames from "flutter" package as not in_app', () {
       expect(
         FlutterSentry.defaultStackFrameFilter([
-          {'abs_path': 'package:tedious_monsters/alarm.dart'},
-          {'abs_path': 'package:flutter_helper/index.dart'},
-          {'abs_path': 'package:flutter/flutter.dart'},
-          {'abs_path': 'package:flutter/init.dart'},
-          {'abs_path': 'main.dart'},
+          <String, dynamic>{'abs_path': 'package:tedious_monsters/alarm.dart'},
+          <String, dynamic>{'abs_path': 'package:flutter_helper/index.dart'},
+          <String, dynamic>{'abs_path': 'package:flutter/flutter.dart'},
+          <String, dynamic>{'abs_path': 'package:flutter/init.dart'},
+          <String, dynamic>{'abs_path': 'main.dart'},
         ]),
         [
           {'abs_path': 'package:tedious_monsters/alarm.dart'},
