@@ -27,9 +27,7 @@ jobs:
           fi
       - run: flutter analyze
       - run: flutter test --coverage
-      - uses: codecov/codecov-action@v1
-        with:
-          token: "29429d21-5c5a-494c-8700-8afc1e082c85"
+      - uses: codecov/codecov-action@v1.0.6
 
   build:
     needs: check
