@@ -1,3 +1,7 @@
+## Unreleased
+
+* Add timezone and screen dimensions to report.
+
 ## 0.2.1
 
 * Update README with new `flutter_sentry` version.
