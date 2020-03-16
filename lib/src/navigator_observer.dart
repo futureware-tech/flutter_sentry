@@ -15,7 +15,6 @@ Breadcrumb defaultRouteDataExtractor(RouteSettings route) {
     route.name,
     DateTime.now().toUtc(),
     category: 'navigation',
-    level: SeverityLevel.info,
     data: arguments is Map<String, dynamic>
         ? arguments.map(
             (key, dynamic value) => MapEntry(key, value.toString()),

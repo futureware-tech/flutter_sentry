@@ -186,6 +186,22 @@ class FlutterSentry {
 
   static Future<Map<String, dynamic>> _getDeviceInfo() async {
     final buildDeviceExtras = <String, dynamic>{};
+
+    // TODO(dotdoom): window parameters may change at application runtime. It's
+    //                better to update these right before sending a report.
+    final window = WidgetsBinding.instance.window;
+    buildDeviceExtras.addAll(<String, dynamic>{
+      'screen_resolution': '${window.physicalSize.height.toInt()}x'
+          '${window.physicalSize.width.toInt()}',
+      'orientation': window.physicalSize.width > window.physicalSize.height
+          ? 'landscape'
+          : 'portrait',
+      'screen_density': window.devicePixelRatio,
+      'screen_width_pixels': window.physicalSize.width,
+      'screen_height_pixels': window.physicalSize.height,
+      'timezone': DateTime.now().timeZoneName,
+    });
+
     final deviceInfo = DeviceInfoPlugin();
 
     if (Platform.isAndroid) {
