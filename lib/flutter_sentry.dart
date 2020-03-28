@@ -54,8 +54,8 @@ class FlutterSentry {
   /// Note that this function calls for [FlutterSentry.initialize], and
   /// therefore cannot be used more than once, or in combination with
   /// [FlutterSentry.initialize].
-  static Future<T> wrap<T>(
-    Future<T> Function() f, {
+  static T wrap<T>(
+    T Function() f, {
     @required String dsn,
   }) {
     var environment = 'debug';
@@ -68,7 +68,7 @@ class FlutterSentry {
       dsn: dsn,
       environmentAttributes: Event(environment: environment),
     );
-    return runZoned<Future<T>>(() async {
+    return runZoned<T>(() {
       // This is necessary to initialize Flutter method channels so that
       // our plugin can call into the native code. It also must be in the same
       // zone as the app: https://github.com/flutter/flutter/issues/42682.
@@ -96,19 +96,20 @@ class FlutterSentry {
         ));
       };
 
-      Isolate.current
-          .addErrorListener(RawReceivePort((dynamic errorAndStacktrace) async {
-        // This must be a 2-element list per documentation:
-        // https://api.dartlang.org/stable/2.7.0/dart-isolate/Isolate/addErrorListener.html
-        final dynamic error = errorAndStacktrace[0],
-            stackTrace = errorAndStacktrace[1];
-        debugPrint('Uncaught error in Flutter isolate: $error\n$stackTrace');
-        await instance.captureException(
-          exception: error,
-          stackTrace:
-              stackTrace is String ? StackTrace.fromString(stackTrace) : null,
-        );
-      }).sendPort);
+      Isolate.current.addErrorListener(
+        RawReceivePort((dynamic errorAndStacktrace) {
+          // This must be a 2-element list per documentation:
+          // https://api.dartlang.org/stable/2.7.0/dart-isolate/Isolate/addErrorListener.html
+          final dynamic error = errorAndStacktrace[0],
+              stackTrace = errorAndStacktrace[1];
+          debugPrint('Uncaught error in Flutter isolate: $error\n$stackTrace');
+          instance.captureException(
+            exception: error,
+            stackTrace:
+                stackTrace is String ? StackTrace.fromString(stackTrace) : null,
+          );
+        }).sendPort,
+      );
 
       return f();
     }, onError: (Object exception, StackTrace stackTrace) {

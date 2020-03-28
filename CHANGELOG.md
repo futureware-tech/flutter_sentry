@@ -1,6 +1,8 @@
 ## Unreleased
 
 * Add timezone and screen dimensions to report.
+* Do not require `FlutterSentry.wrap<T>()` template parameter `T` to be a
+  `Future`.
 
 ## 0.2.1
 
