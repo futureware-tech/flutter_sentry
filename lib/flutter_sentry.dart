@@ -26,6 +26,10 @@ class FlutterSentry {
   final SentryClient _sentry;
   final _deviceContext = <String, dynamic>{};
 
+  /// Assignable user-related properties which will be attached to every report
+  /// created via [captureException] (this includes events reported by [wrap]).
+  User userContext;
+
   /// Breadcrumbs collected so far for reporting in the next event.
   // This type is inferred: https://github.com/dart-lang/linter/issues/1319.
   // ignore: type_annotate_public_apis
@@ -152,6 +156,7 @@ class FlutterSentry {
       stackTrace: stackTrace,
       breadcrumbs: breadcrumbs.breadcrumbs.toList(),
       deviceContext: _deviceContext,
+      userContext: userContext,
     );
     return _sentry.capture(event: event, stackFrameFilter: stackFrameFilter);
   }

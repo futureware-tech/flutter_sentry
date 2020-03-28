@@ -5,6 +5,9 @@
   `Future`.
 * Intercept `print()` via `ZoneSpecification` instead of overriding
   `debugPrint()` which is only a wrapper around `print()`.
+* Add `userContext` on `FlutterSentry.instance` which allows setting custom
+  context. It does not propagate to platform code (yet), so fatal exceptions
+  will still lack this data.
 
 ## 0.2.1
 
