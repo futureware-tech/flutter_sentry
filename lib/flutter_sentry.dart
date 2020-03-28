@@ -64,18 +64,18 @@ class FlutterSentry {
     } else if (kProfileMode) {
       environment = 'profile';
     }
-    initialize(
-      dsn: dsn,
-      environmentAttributes: Event(environment: environment),
-    );
 
     var printing = false;
     return runZoned<T>(
       () {
-        // This is necessary to initialize Flutter method channels so that
+        // initialize() calls for WidgetsFlutterBinding.ensureInitialized(),
+        // which is necessary to initialize Flutter method channels so that
         // our plugin can call into the native code. It also must be in the same
         // zone as the app: https://github.com/flutter/flutter/issues/42682.
-        WidgetsFlutterBinding.ensureInitialized();
+        initialize(
+          dsn: dsn,
+          environmentAttributes: Event(environment: environment),
+        );
 
         FlutterError.onError = (details) {
           FlutterError.dumpErrorToConsole(details);
