@@ -1,14 +1,13 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:isolate';
 
-import 'package:device_info/device_info.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:sentry/sentry.dart';
 
 import 'src/breadcrumb_tracker.dart';
+import 'src/device_context.dart';
 import 'src/flutter_event.dart';
 
 export 'src/navigator_observer.dart' show FlutterSentryNavigatorObserver;
@@ -16,15 +15,12 @@ export 'src/navigator_observer.dart' show FlutterSentryNavigatorObserver;
 /// API entrypoint for Sentry.io Flutter plugin. Start using Sentry.io by
 /// calling either [initialize] or [wrap] static methods.
 class FlutterSentry {
-  FlutterSentry._(SentryClient client) : _sentry = client {
-    _initializeContexts();
-  }
+  FlutterSentry._(this._sentry);
 
   static const MethodChannel _channel = MethodChannel('flutter_sentry');
   static FlutterSentry _instance;
 
   final SentryClient _sentry;
-  final _deviceContext = <String, dynamic>{};
 
   /// Assignable user-related properties which will be attached to every report
   /// created via [captureException] (this includes events reported by [wrap]).
@@ -155,8 +151,9 @@ class FlutterSentry {
       exception: exception,
       stackTrace: stackTrace,
       breadcrumbs: breadcrumbs.breadcrumbs.toList(),
-      deviceContext: _deviceContext,
+      deviceContext: DeviceContext().toJson(),
       userContext: userContext,
+      // TODO(ksheremet): add os and app contexts.
     );
     return _sentry.capture(event: event, stackFrameFilter: stackFrameFilter);
   }
@@ -198,66 +195,9 @@ class FlutterSentry {
       _instance = FlutterSentry._(
         SentryClient(dsn: dsn, environmentAttributes: environmentAttributes),
       );
+      DeviceContext.prefetch();
     } else {
       throw StateError('FlutterSentry has already been initialized');
     }
-  }
-
-  Future<void> _initializeContexts() async {
-    WidgetsFlutterBinding.ensureInitialized();
-    _deviceContext.addAll(await _getDeviceInfo());
-    // TODO(ksheremet): initialize os and app contexts.
-    // TODO(ksheremet): make contexts static (lazy) because they don't change.
-  }
-
-  static Future<Map<String, dynamic>> _getDeviceInfo() async {
-    final buildDeviceExtras = <String, dynamic>{};
-
-    // TODO(dotdoom): window parameters may change at application runtime. It's
-    //                better to update these right before sending a report.
-    final window = WidgetsBinding.instance.window;
-    buildDeviceExtras.addAll(<String, dynamic>{
-      'screen_resolution': '${window.physicalSize.height.toInt()}x'
-          '${window.physicalSize.width.toInt()}',
-      'orientation': window.physicalSize.width > window.physicalSize.height
-          ? 'landscape'
-          : 'portrait',
-      'screen_density': window.devicePixelRatio,
-      'screen_width_pixels': window.physicalSize.width,
-      'screen_height_pixels': window.physicalSize.height,
-      'timezone': DateTime.now().timeZoneName,
-    });
-
-    final deviceInfo = DeviceInfoPlugin();
-
-    if (Platform.isAndroid) {
-      final androidInfo = await deviceInfo.androidInfo;
-      buildDeviceExtras.addAll(<String, dynamic>{
-        'device': androidInfo.device,
-        'manufacturer': androidInfo.manufacturer,
-        'brand': androidInfo.brand,
-        'simulator': !androidInfo.isPhysicalDevice,
-        'archs': androidInfo.supportedAbis,
-        'os': {
-          'version': androidInfo.version.release,
-          'build': androidInfo.id,
-          'name': 'Android',
-        },
-      });
-    }
-
-    if (Platform.isIOS) {
-      final iosInfo = await deviceInfo.iosInfo;
-      buildDeviceExtras.addAll(<String, dynamic>{
-        'device': iosInfo.model,
-        'family': iosInfo.systemName,
-        'arch': iosInfo.utsname.machine,
-        'version': iosInfo.systemVersion,
-      });
-      // TODO(ksheremet): Use it in "os" context.
-      //buildDeviceExtras['kernel_version'] = iosInfo.utsname.version;
-    }
-
-    return buildDeviceExtras;
   }
 }

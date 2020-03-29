@@ -8,6 +8,8 @@
 - Add `userContext` on `FlutterSentry.instance` which allows setting custom
   context. It does not propagate to platform code (yet), so fatal exceptions
   will still lack this data.
+- Try to get most recent device parameters (such as screen size) at the time of
+  reporting an error, and fall back to the values fetched at `initialize()`.
 
 ## 0.2.1
 
