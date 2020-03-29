@@ -12,6 +12,8 @@
   reporting an error, and fall back to the values fetched at `initialize()`.
 - Use `FlutterSentry.instance.breadcrumbs` as a breadcrumb tracker for navigator
   observer, if unspecified.
+- Add "app" context (including app name and version) to events reported via
+  `captureException()`.
 
 ## 0.2.1
 

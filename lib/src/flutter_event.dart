@@ -23,6 +23,7 @@ class FlutterEvent extends Event {
     User userContext,
     List<Breadcrumb> breadcrumbs,
     this.deviceContext,
+    this.appContext,
   }) : super(
           loggerName: loggerName,
           serverName: serverName,
@@ -45,6 +46,10 @@ class FlutterEvent extends Event {
   /// https://docs.sentry.io/development/sdk-dev/event-payloads/contexts/
   final Map<String, dynamic> deviceContext;
 
+  /// Key/value pairs that describe the app where this event occured.
+  /// https://docs.sentry.io/development/sdk-dev/event-payloads/contexts/
+  final Map<String, dynamic> appContext;
+
   @override
   Map<String, dynamic> toJson({
     // TODO(ksheremet): Event.toJson uses StackFrameFilter as a parameter, which
@@ -61,6 +66,7 @@ class FlutterEvent extends Event {
     // https://docs.sentry.io/development/sdk-dev/event-payloads/contexts/
     json['contexts'] = {
       'device': deviceContext,
+      'app': appContext,
     };
 
     return json;
