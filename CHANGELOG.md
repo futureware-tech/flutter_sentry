@@ -1,4 +1,4 @@
-## Unreleased
+## 0.3.0
 
 - Add timezone and screen dimensions to report.
 - Do not require `FlutterSentry.wrap<T>()` template parameter `T` to be a
@@ -10,6 +10,12 @@
   will still lack this data.
 - Try to get most recent device parameters (such as screen size) at the time of
   reporting an error, and fall back to the values fetched at `initialize()`.
+- Use `FlutterSentry.instance.breadcrumbs` as a breadcrumb tracker for navigator
+  observer, if unspecified.
+- Add "app" context (including app name and version) to events reported via
+  `captureException()`.
+- Add "os" context to events reported via `captureException()`.
+- Detect "driver" environment for `flutter_driver`.
 
 ## 0.2.1
 

@@ -7,8 +7,7 @@ import 'package:flutter/widgets.dart';
 import 'package:sentry/sentry.dart';
 
 import 'src/breadcrumb_tracker.dart';
-import 'src/device_context.dart';
-import 'src/flutter_event.dart';
+import 'src/contexts_cache.dart' as contexts_cache;
 
 export 'src/navigator_observer.dart' show FlutterSentryNavigatorObserver;
 
@@ -54,17 +53,13 @@ class FlutterSentry {
   /// Note that this function calls for [FlutterSentry.initialize], and
   /// therefore cannot be used more than once, or in combination with
   /// [FlutterSentry.initialize].
+  ///
+  /// flutter_driver users: keep `enableFlutterDriverExtension()` call outside
+  /// of the `wrap()`.
   static T wrap<T>(
     T Function() f, {
     @required String dsn,
   }) {
-    var environment = 'debug';
-    if (kReleaseMode) {
-      environment = 'release';
-    } else if (kProfileMode) {
-      environment = 'profile';
-    }
-
     var printing = false;
     return runZoned<T>(
       () {
@@ -74,7 +69,10 @@ class FlutterSentry {
         // zone as the app: https://github.com/flutter/flutter/issues/42682.
         initialize(
           dsn: dsn,
-          environmentAttributes: Event(environment: environment),
+          environmentAttributes: const Event(
+            environment:
+                kReleaseMode ? 'release' : kProfileMode ? 'profile' : 'debug',
+          ),
         );
 
         FlutterError.onError = (details) {
@@ -147,13 +145,18 @@ class FlutterSentry {
     @required dynamic exception,
     dynamic stackTrace,
   }) {
-    final event = FlutterEvent(
+    final event = Event(
       exception: exception,
       stackTrace: stackTrace,
+      // We should not call isFlutterDriver too early, so we don't do it inside
+      // wrap() or initialize(). Default to null, which will be substituted for
+      // what environmentAttributes provide.
+      environment: contexts_cache.isFlutterDriver() ? 'driver' : null,
+      release: _sentry.environmentAttributes?.release ??
+          contexts_cache.defaultReleaseString(),
       breadcrumbs: breadcrumbs.breadcrumbs.toList(),
-      deviceContext: DeviceContext().toJson(),
       userContext: userContext,
-      // TODO(ksheremet): add os and app contexts.
+      contexts: contexts_cache.currentContexts(),
     );
     return _sentry.capture(event: event, stackFrameFilter: stackFrameFilter);
   }
@@ -190,12 +193,15 @@ class FlutterSentry {
   /// This event should contain static values that do not change from
   /// event to event, for example, app environment (debug, production, profile),
   /// the version of Dart/Flutter SDK, etc.
+  ///
+  /// flutter_driver users: make sure to call `enableFlutterDriverExtension()`
+  /// before `initialize()`.
   static void initialize({@required String dsn, Event environmentAttributes}) {
     if (_instance == null) {
       _instance = FlutterSentry._(
         SentryClient(dsn: dsn, environmentAttributes: environmentAttributes),
       );
-      DeviceContext.prefetch();
+      contexts_cache.prefetch();
     } else {
       throw StateError('FlutterSentry has already been initialized');
     }

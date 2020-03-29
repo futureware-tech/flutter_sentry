@@ -6,9 +6,7 @@ void main() => FlutterSentry.wrap(
       () {
         runApp(MaterialApp(
           navigatorObservers: [
-            FlutterSentryNavigatorObserver(
-              breadcrumbs: FlutterSentry.instance.breadcrumbs,
-            ),
+            FlutterSentryNavigatorObserver(),
           ],
           home: Scaffold(
             appBar: AppBar(
