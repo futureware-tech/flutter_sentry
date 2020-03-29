@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_sentry/flutter_sentry.dart';
+import 'package:sentry/sentry.dart';
 
 void main() => FlutterSentry.wrap(
       () {
@@ -13,28 +14,51 @@ void main() => FlutterSentry.wrap(
             appBar: AppBar(
               title: const Text('Flutter Sentry plugin example app'),
             ),
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  const RaisedButton(
-                    onPressed: FlutterSentry.nativeCrash,
-                    child: Text('Cause a native crash'),
-                  ),
-                  RaisedButton(
-                    onPressed: () {
-                      debugPrint('Throwing an uncaught exception');
-                      throw Exception('Uncaught exception');
-                    },
-                    child: const Text('Throw uncaught exception'),
-                  ),
-                  RaisedButton(
-                    onPressed: () => FlutterSentry.instance.captureException(
-                      exception: Exception('Event'),
+            body: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    RaisedButton(
+                      onPressed: () {
+                        FlutterSentry.instance.userContext = const User(
+                          id: '0123456789',
+                          email: 'test@example.com',
+                          extras: <String, dynamic>{
+                            // This can be anything you like.
+                            'purchased': true,
+                            'signInMethod': 'Anonymous',
+                            'currentConfig': {
+                              'minApplicationVersion': '2.5',
+                              'sharingFeatureEnabled': false,
+                            },
+                          },
+                        );
+                      },
+                      child: const Text('Sign in'),
                     ),
-                    child: const Text('Report an event to Sentry.io'),
-                  ),
-                ],
+                    const Divider(),
+                    const RaisedButton(
+                      onPressed: FlutterSentry.nativeCrash,
+                      child: Text('Cause a native crash'),
+                    ),
+                    RaisedButton(
+                      onPressed: () {
+                        debugPrint('Throwing an uncaught exception');
+                        throw Exception('Uncaught exception');
+                      },
+                      child: const Text('Throw uncaught exception'),
+                    ),
+                    RaisedButton(
+                      onPressed: () => FlutterSentry.instance.captureException(
+                        exception: Exception('Event'),
+                      ),
+                      child: const Text('Report an event to Sentry.io'),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

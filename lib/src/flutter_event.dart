@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sentry/sentry.dart';
 
-/// An event to be reported to Sentry.io. It extends sentry Event to make
+/// An event to be reported to Sentry.io. It extends sentry [Event] to make
 /// event information look closer to what comes from native platform plugins.
 @immutable
 class FlutterEvent extends Event {
