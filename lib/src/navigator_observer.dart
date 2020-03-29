@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_sentry/flutter_sentry.dart';
 import 'package:sentry/sentry.dart';
 
 import 'breadcrumb_tracker.dart';
@@ -46,9 +47,9 @@ class FlutterSentryNavigatorObserver extends RouteObserver<PageRoute> {
   /// and add to [breadcrumbs] after mapping them using [dataExtractor]. This
   /// object is merely an incapsulation and does not hold any state.
   FlutterSentryNavigatorObserver({
-    @required this.breadcrumbs,
+    BreadcrumbTracker breadcrumbs,
     this.dataExtractor = defaultRouteDataExtractor,
-  });
+  }) : breadcrumbs = breadcrumbs ?? FlutterSentry.instance.breadcrumbs;
 
   /// Destination for tracking navigation events.
   final BreadcrumbTracker breadcrumbs;

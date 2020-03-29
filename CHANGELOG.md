@@ -10,6 +10,8 @@
   will still lack this data.
 - Try to get most recent device parameters (such as screen size) at the time of
   reporting an error, and fall back to the values fetched at `initialize()`.
+- Use `FlutterSentry.instance.breadcrumbs` as a breadcrumb tracker for navigator
+  observer, if unspecified.
 
 ## 0.2.1
 
