@@ -1,6 +1,10 @@
 ## Unreleased
 
 * Add timezone and screen dimensions to report.
+* Do not require `FlutterSentry.wrap<T>()` template parameter `T` to be a
+  `Future`.
+* Intercept `print()` via `ZoneSpecification` instead of overriding
+  `debugPrint()` which is only a wrapper around `print()`.
 
 ## 0.2.1
 

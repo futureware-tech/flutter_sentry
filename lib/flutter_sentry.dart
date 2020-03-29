@@ -54,8 +54,8 @@ class FlutterSentry {
   /// Note that this function calls for [FlutterSentry.initialize], and
   /// therefore cannot be used more than once, or in combination with
   /// [FlutterSentry.initialize].
-  static Future<T> wrap<T>(
-    Future<T> Function() f, {
+  static T wrap<T>(
+    T Function() f, {
     @required String dsn,
   }) {
     var environment = 'debug';
@@ -64,60 +64,81 @@ class FlutterSentry {
     } else if (kProfileMode) {
       environment = 'profile';
     }
-    initialize(
-      dsn: dsn,
-      environmentAttributes: Event(environment: environment),
-    );
-    return runZoned<Future<T>>(() async {
-      // This is necessary to initialize Flutter method channels so that
-      // our plugin can call into the native code. It also must be in the same
-      // zone as the app: https://github.com/flutter/flutter/issues/42682.
-      WidgetsFlutterBinding.ensureInitialized();
 
-      FlutterError.onError = (details) {
-        FlutterError.dumpErrorToConsole(details);
+    var printing = false;
+    return runZoned<T>(
+      () {
+        // initialize() calls for WidgetsFlutterBinding.ensureInitialized(),
+        // which is necessary to initialize Flutter method channels so that
+        // our plugin can call into the native code. It also must be in the same
+        // zone as the app: https://github.com/flutter/flutter/issues/42682.
+        initialize(
+          dsn: dsn,
+          environmentAttributes: Event(environment: environment),
+        );
+
+        FlutterError.onError = (details) {
+          FlutterError.dumpErrorToConsole(details);
+          instance.captureException(
+            exception: details.exception,
+            stackTrace: details.stack,
+          );
+        };
+
+        Isolate.current.addErrorListener(
+          RawReceivePort((dynamic errorAndStacktrace) {
+            // This must be a 2-element list per documentation:
+            // https://api.dartlang.org/stable/2.7.0/dart-isolate/Isolate/addErrorListener.html
+            final dynamic error = errorAndStacktrace[0],
+                stackTrace = errorAndStacktrace[1];
+            // RawReceivePort is exempt from zones, but we don't need this error
+            // message as a breadcrumb, anyway.
+            debugPrint(
+                'Uncaught error in Flutter isolate: $error\n$stackTrace');
+            instance.captureException(
+              exception: error,
+              stackTrace: stackTrace is String
+                  ? StackTrace.fromString(stackTrace)
+                  : null,
+            );
+          }).sendPort,
+        );
+
+        return f();
+      },
+      zoneSpecification: ZoneSpecification(print: (self, parent, zone, line) {
+        // One should be careful to not introduce any print() calls inside this
+        // block, as they will create an infinite recursion.
+        if (printing) {
+          // Oops. Looks like we got ourselves into recursion, i.e. some code in
+          // try..finally below calls (maybe indirectly) print().
+          parent.print(
+              zone,
+              'ERROR! ERROR! ERROR! Recursion in zoneSpecification.print(). '
+              'When printing: $line');
+          return;
+        }
+
+        printing = true;
+        try {
+          parent.print(self, line);
+          instance.breadcrumbs.add(Breadcrumb(
+            line,
+            DateTime.now().toUtc(),
+            category: 'print',
+          ));
+        } finally {
+          printing = false;
+        }
+      }),
+      onError: (Object exception, StackTrace stackTrace) {
+        debugPrint('Uncaught error in zone: $exception\n$stackTrace');
         instance.captureException(
-          exception: details.exception,
-          stackTrace: details.stack,
+          exception: exception,
+          stackTrace: stackTrace,
         );
-      };
-
-      final debugPrintWithoutBreadcrumbs = debugPrint;
-      debugPrint = (String message, {int wrapWidth}) {
-        debugPrintWithoutBreadcrumbs(message, wrapWidth: wrapWidth);
-        instance.breadcrumbs.add(Breadcrumb(
-          message,
-          DateTime.now().toUtc(),
-          category: 'debugPrint',
-          level: SeverityLevel.debug,
-          data: {
-            'wrapWidth': wrapWidth.toString(),
-          },
-        ));
-      };
-
-      Isolate.current
-          .addErrorListener(RawReceivePort((dynamic errorAndStacktrace) async {
-        // This must be a 2-element list per documentation:
-        // https://api.dartlang.org/stable/2.7.0/dart-isolate/Isolate/addErrorListener.html
-        final dynamic error = errorAndStacktrace[0],
-            stackTrace = errorAndStacktrace[1];
-        debugPrint('Uncaught error in Flutter isolate: $error\n$stackTrace');
-        await instance.captureException(
-          exception: error,
-          stackTrace:
-              stackTrace is String ? StackTrace.fromString(stackTrace) : null,
-        );
-      }).sendPort);
-
-      return f();
-    }, onError: (Object exception, StackTrace stackTrace) {
-      debugPrint('Uncaught error in zone: $exception\n$stackTrace');
-      instance.captureException(
-        exception: exception,
-        stackTrace: stackTrace,
-      );
-    });
+      },
+    );
   }
 
   /// Reports the [exception] and optionally its [stackTrace] to Sentry.io. It
