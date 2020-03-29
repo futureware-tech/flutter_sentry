@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
-import 'package:flutter_sentry/flutter_sentry.dart';
 import 'package:sentry/sentry.dart';
 
+import '../flutter_sentry.dart';
 import 'breadcrumb_tracker.dart';
 
 /// Mapper of [RouteSettings] into Sentry [Breadcrumb].

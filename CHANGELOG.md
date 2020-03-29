@@ -14,6 +14,7 @@
   observer, if unspecified.
 - Add "app" context (including app name and version) to events reported via
   `captureException()`.
+- Add "os" context to events reported via `captureException()`.
 
 ## 0.2.1
 

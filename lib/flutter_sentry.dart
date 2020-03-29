@@ -4,12 +4,10 @@ import 'dart:isolate';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:package_info/package_info.dart';
 import 'package:sentry/sentry.dart';
 
 import 'src/breadcrumb_tracker.dart';
-import 'src/device_context.dart';
-import 'src/flutter_event.dart';
+import 'src/contexts_cache.dart' as contexts_cache;
 
 export 'src/navigator_observer.dart' show FlutterSentryNavigatorObserver;
 
@@ -19,9 +17,7 @@ class FlutterSentry {
   FlutterSentry._(this._sentry);
 
   static const MethodChannel _channel = MethodChannel('flutter_sentry');
-  static DateTime _initializeTime;
   static FlutterSentry _instance;
-  static PackageInfo _packageInfo;
 
   final SentryClient _sentry;
 
@@ -150,27 +146,14 @@ class FlutterSentry {
     @required dynamic exception,
     dynamic stackTrace,
   }) {
-    final appContext = _packageInfo == null
-        ? null
-        : <String, String>{
-            'app_start_time': _initializeTime.toIso8601String(),
-            'app_identifier': _packageInfo.packageName,
-            'app_name': _packageInfo.appName,
-            'app_version': _packageInfo.version,
-            'app_build': _packageInfo.buildNumber,
-          };
-    final event = FlutterEvent(
+    final event = Event(
       exception: exception,
       stackTrace: stackTrace,
-      release: _sentry.environmentAttributes.release ??
-          (_packageInfo == null
-              ? null
-              : '${_packageInfo.packageName}-${_packageInfo.version}'),
+      release: _sentry.environmentAttributes?.release ??
+          contexts_cache.defaultReleaseString(),
       breadcrumbs: breadcrumbs.breadcrumbs.toList(),
-      deviceContext: DeviceContext().toJson(),
       userContext: userContext,
-      appContext: appContext,
-      // TODO(ksheremet): add os context.
+      contexts: contexts_cache.currentContexts(),
     );
     return _sentry.capture(event: event, stackFrameFilter: stackFrameFilter);
   }
@@ -209,13 +192,10 @@ class FlutterSentry {
   /// the version of Dart/Flutter SDK, etc.
   static void initialize({@required String dsn, Event environmentAttributes}) {
     if (_instance == null) {
-      _initializeTime = DateTime.now().toUtc();
       _instance = FlutterSentry._(
         SentryClient(dsn: dsn, environmentAttributes: environmentAttributes),
       );
-
-      DeviceContext.prefetch();
-      PackageInfo.fromPlatform().then((info) => _packageInfo = info);
+      contexts_cache.prefetch();
     } else {
       throw StateError('FlutterSentry has already been initialized');
     }
