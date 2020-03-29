@@ -15,6 +15,7 @@
 - Add "app" context (including app name and version) to events reported via
   `captureException()`.
 - Add "os" context to events reported via `captureException()`.
+- Detect "driver" environment for `flutter_driver`.
 
 ## 0.2.1
 

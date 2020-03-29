@@ -1,6 +1,8 @@
+import 'dart:developer' as developer;
 import 'dart:io';
 
 import 'package:device_info/device_info.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:package_info/package_info.dart';
 import 'package:sentry/sentry.dart' as sentry;
@@ -100,4 +102,21 @@ sentry.Device _deviceContext() {
     simulator: simulator,
     arch: arch,
   );
+}
+
+/// Detect whether application is currently running under Flutter Driver. Do not
+/// use this method before Flutter Driver is initialized.
+bool isFlutterDriver() {
+  // Make sure this block is shaken out of the tree in release builds.
+  if (!kReleaseMode) {
+    // A really hacky way to find out whether flutter_driver is enabled.
+    try {
+      developer.registerExtension('ext.flutter.driver', (_, __) => null);
+    }
+    // ignore: avoid_catching_errors
+    on ArgumentError catch (_) {
+      return true;
+    }
+  }
+  return false;
 }
