@@ -20,9 +20,11 @@ Breadcrumb defaultRouteDataExtractor(RouteSettings route) {
         ? arguments.map(
             (key, dynamic value) => MapEntry(key, value.toString()),
           )
-        : {
-            'arguments': arguments.toString(),
-          },
+        : arguments == null
+            ? null
+            : {
+                'arguments': arguments.toString(),
+              },
   );
 }
 

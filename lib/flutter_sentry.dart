@@ -144,6 +144,7 @@ class FlutterSentry {
   Future<SentryResponse> captureException({
     @required dynamic exception,
     dynamic stackTrace,
+    Map<String, dynamic> extra,
   }) {
     final event = Event(
       exception: exception,
@@ -157,6 +158,7 @@ class FlutterSentry {
       breadcrumbs: breadcrumbs.breadcrumbs.toList(),
       userContext: userContext,
       contexts: contexts_cache.currentContexts(),
+      extra: extra,
     );
     return _sentry.capture(event: event, stackFrameFilter: stackFrameFilter);
   }
@@ -197,12 +199,22 @@ class FlutterSentry {
   /// flutter_driver users: make sure to call `enableFlutterDriverExtension()`
   /// before `initialize()`.
   static void initialize({@required String dsn, Event environmentAttributes}) {
-    if (_instance == null) {
-      _instance = FlutterSentry._(
-        SentryClient(dsn: dsn, environmentAttributes: environmentAttributes),
-      );
-      contexts_cache.prefetch();
-    } else {
+    _ensureNotInitialized();
+    initializeWithClient(
+      SentryClient(dsn: dsn, environmentAttributes: environmentAttributes),
+    );
+  }
+
+  /// Initialize [FlutterSentry] with an existing and configured [SentryClient].
+  /// Useful for tests. For the rest of semantics, see [initialize].
+  static void initializeWithClient(SentryClient sentryClient) {
+    _ensureNotInitialized();
+    _instance = FlutterSentry._(sentryClient);
+    contexts_cache.prefetch();
+  }
+
+  static void _ensureNotInitialized() {
+    if (_instance != null) {
       throw StateError('FlutterSentry has already been initialized');
     }
   }

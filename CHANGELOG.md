@@ -1,3 +1,11 @@
+## 0.3.1
+
+- Do not report "arguments: null" in breadcrumb for a route without arguments.
+- Add `FlutterSentry.initializeWithClient()` method to share an existing
+  `SentryClient` and to use in tests.
+- Add `extra` to `FlutterSentry.captureException()` for supplying additional
+  event-related data.
+
 ## 0.3.0
 
 - Add timezone and screen dimensions to report.

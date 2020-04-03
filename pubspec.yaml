@@ -1,6 +1,6 @@
 name: flutter_sentry
 description: Sentry.io error reporting plugin for Flutter, offering tight integration with Flutter and native code.
-version: 0.3.0
+version: 0.3.1
 homepage: https://github.com/dasfoo/flutter_sentry
 
 environment:
@@ -17,6 +17,7 @@ dependencies:
 
 dev_dependencies:
   test: ^1.9.4
+  mockito: ^3.0.0
   flutter_test:
     sdk: flutter
 
