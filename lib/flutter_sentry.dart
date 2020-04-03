@@ -63,15 +63,23 @@ class FlutterSentry {
     var printing = false;
     return runZoned<T>(
       () {
+        WidgetsFlutterBinding.ensureInitialized();
+        final window = WidgetsBinding.instance.window;
+
         // initialize() calls for WidgetsFlutterBinding.ensureInitialized(),
         // which is necessary to initialize Flutter method channels so that
         // our plugin can call into the native code. It also must be in the same
         // zone as the app: https://github.com/flutter/flutter/issues/42682.
         initialize(
           dsn: dsn,
-          environmentAttributes: const Event(
+          environmentAttributes: Event(
             environment:
                 kReleaseMode ? 'release' : kProfileMode ? 'profile' : 'debug',
+            extra: <String, dynamic>{
+              // This should really go into one of Contexts, but there's just no
+              // place for it there!
+              'locale': window.locale.toString(),
+            },
           ),
         );
 
@@ -150,8 +158,8 @@ class FlutterSentry {
       exception: exception,
       stackTrace: stackTrace,
       // We should not call isFlutterDriver too early, so we don't do it inside
-      // wrap() or initialize(). Default to null, which will be substituted for
-      // what environmentAttributes provide.
+      // wrap() or initialize(). Default to null, which Sentry will substitute
+      // by what environmentAttributes provide.
       environment: contexts_cache.isFlutterDriver() ? 'driver' : null,
       release: _sentry.environmentAttributes?.release ??
           contexts_cache.defaultReleaseString(),
