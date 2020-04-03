@@ -144,6 +144,7 @@ class FlutterSentry {
   Future<SentryResponse> captureException({
     @required dynamic exception,
     dynamic stackTrace,
+    Map<String, dynamic> extra,
   }) {
     final event = Event(
       exception: exception,
@@ -157,6 +158,7 @@ class FlutterSentry {
       breadcrumbs: breadcrumbs.breadcrumbs.toList(),
       userContext: userContext,
       contexts: contexts_cache.currentContexts(),
+      extra: extra,
     );
     return _sentry.capture(event: event, stackFrameFilter: stackFrameFilter);
   }
