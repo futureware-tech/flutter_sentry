@@ -104,19 +104,26 @@ sentry.Device _deviceContext() {
   );
 }
 
+bool _flutterDriverDetected;
+
 /// Detect whether application is currently running under Flutter Driver. Do not
 /// use this method before Flutter Driver is initialized.
 bool isFlutterDriver() {
   // Make sure this block is shaken out of the tree in release builds.
   if (!kReleaseMode) {
-    // A really hacky way to find out whether flutter_driver is enabled.
-    try {
-      developer.registerExtension('ext.flutter.driver', (_, __) => null);
+    if (_flutterDriverDetected == null) {
+      // A really hacky way to find out whether flutter_driver is enabled.
+      try {
+        developer.registerExtension('ext.flutter.driver', (_, __) => null);
+        _flutterDriverDetected = false;
+      }
+      // ignore: avoid_catching_errors
+      on ArgumentError catch (_) {
+        _flutterDriverDetected = true;
+      }
     }
-    // ignore: avoid_catching_errors
-    on ArgumentError catch (_) {
-      return true;
-    }
+
+    return _flutterDriverDetected;
   }
   return false;
 }

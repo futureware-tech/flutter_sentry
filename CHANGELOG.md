@@ -1,3 +1,7 @@
+## Unreleased
+
+- Fix detection of `flutter_driver` for events other than the first.
+
 ## 0.3.1
 
 - Do not report "arguments: null" in breadcrumb for a route without arguments.
