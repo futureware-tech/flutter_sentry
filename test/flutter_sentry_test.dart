@@ -1,9 +1,11 @@
 import 'package:flutter_sentry/flutter_sentry.dart';
+import 'package:mockito/mockito.dart';
+import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('defaultStackFrameFilter', () {
-    test('marks frames from "flutter" package as not in_app', () {
+  group('FlutterSentry', () {
+    test('defaultStackFrameFilter marks "flutter" frames as not in_app', () {
       expect(
         FlutterSentry.defaultStackFrameFilter([
           <String, dynamic>{'abs_path': 'package:tedious_monsters/alarm.dart'},
@@ -21,5 +23,15 @@ void main() {
         ],
       );
     });
+
+    test('does not allow to initialize more than once', () {
+      FlutterSentry.initializeWithClient(_MockSentryClient());
+      expect(
+        () => FlutterSentry.initializeWithClient(_MockSentryClient()),
+        throwsA(const TypeMatcher<StateError>()),
+      );
+    });
   });
 }
+
+class _MockSentryClient extends Mock implements SentryClient {}
