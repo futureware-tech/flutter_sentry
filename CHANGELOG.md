@@ -1,4 +1,4 @@
-## Unreleased
+## 0.3.1
 
 - Do not report "arguments: null" in breadcrumb for a route without arguments.
 - Add `FlutterSentry.initializeWithClient()` method to share an existing
