@@ -1,4 +1,4 @@
-## Unreleased
+## 0.3.2
 
 - Fix detection of `flutter_driver` for events other than the first.
 - Add locale to `environmentAttributes` in `FlutterSentry.wrap()`.
