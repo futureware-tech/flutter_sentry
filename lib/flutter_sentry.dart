@@ -154,6 +154,11 @@ class FlutterSentry {
     dynamic stackTrace,
     Map<String, dynamic> extra,
   }) {
+    if (stackTrace == null && exception is Error) {
+      stackTrace = exception.stackTrace;
+    }
+    stackTrace ??= StackTrace.current;
+
     final event = Event(
       exception: exception,
       stackTrace: stackTrace,
