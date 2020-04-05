@@ -1,4 +1,4 @@
-## Unreleased
+## 0.3.3
 
 - Always add `stackTrace` for `captureException`, using `StackTrace.current` if
   unset.
