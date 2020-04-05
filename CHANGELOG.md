@@ -1,3 +1,10 @@
+## 0.3.3
+
+- Always add `stackTrace` for `captureException`, using `StackTrace.current` if
+  unset.
+- Put `ErrorSummary.value` diagnostics node into `message` when `FlutterError`
+  is passed to `captureException`.
+
 ## 0.3.2
 
 - Fix detection of `flutter_driver` for events other than the first.

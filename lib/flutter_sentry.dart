@@ -154,8 +154,21 @@ class FlutterSentry {
     dynamic stackTrace,
     Map<String, dynamic> extra,
   }) {
+    if (stackTrace == null && exception is Error) {
+      stackTrace = exception.stackTrace;
+    }
+    stackTrace ??= StackTrace.current;
+
     final event = Event(
       exception: exception,
+      // Workaround for https://github.com/flutter/flutter/issues/54038.
+      message: exception is FlutterError
+          ? exception.diagnostics
+              .whereType<ErrorSummary>()
+              .map((node) => node.value?.join('\n'))
+              .where((nodeValue) => nodeValue != null)
+              .join('\n')
+          : null,
       stackTrace: stackTrace,
       // We should not call isFlutterDriver too early, so we don't do it inside
       // wrap() or initialize(). Default to null, which Sentry will substitute

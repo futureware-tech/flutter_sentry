@@ -15,7 +15,7 @@ other Flutter plugins and Flutter itself_.
 
    ```yaml
    dependencies:
-     flutter_sentry: ^0.3.2
+     flutter_sentry: ^0.3.3
    ```
 
 2. Find out a DSN value from Sentry.io and add it to native platforms:

@@ -55,13 +55,6 @@ class MyApp extends StatelessWidget {
                     child: Text('Cause a native crash'),
                   ),
                   RaisedButton(
-                    onPressed: () {
-                      debugPrint('Throwing an uncaught exception');
-                      throw Exception('Uncaught exception');
-                    },
-                    child: const Text('Throw uncaught exception'),
-                  ),
-                  RaisedButton(
                     onPressed: () => FlutterSentry.instance.captureException(
                       exception: Exception('Event'),
                       extra: <String, dynamic>{
@@ -69,6 +62,27 @@ class MyApp extends StatelessWidget {
                       },
                     ),
                     child: const Text('Report an event to Sentry.io'),
+                  ),
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 10),
+                      child: Text('The following works in release mode only:'),
+                    ),
+                  ),
+                  RaisedButton(
+                    onPressed: () {
+                      debugPrint('Throwing an uncaught exception');
+                      throw Exception('Uncaught exception');
+                    },
+                    child: const Text('Throw uncaught exception'),
+                  ),
+                  RaisedButton(
+                    onPressed: () {
+                      // Will fail because Scaffold is below current context:
+                      // https://link.medium.com/TyUYuWoer5.
+                      Scaffold.of(context);
+                    },
+                    child: const Text('Cause and report a FlutterError'),
                   ),
                 ],
               ),
