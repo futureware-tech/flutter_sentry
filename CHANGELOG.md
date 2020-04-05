@@ -2,6 +2,8 @@
 
 - Always add `stackTrace` for `captureException`, using `StackTrace.current` if
   unset.
+- Put `ErrorSummary.value` diagnostics node into `message` when `FlutterError`
+  is passed to `captureException`.
 
 ## 0.3.2
 
