@@ -1,4 +1,4 @@
-## Unreleased
+## 0.3.4
 
 - Replace hacky `flutter_driver` detection with `sentry.environment` override.
 
