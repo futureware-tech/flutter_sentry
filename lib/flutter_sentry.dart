@@ -73,8 +73,11 @@ class FlutterSentry {
         initialize(
           dsn: dsn,
           environmentAttributes: Event(
-            environment:
-                kReleaseMode ? 'release' : kProfileMode ? 'profile' : 'debug',
+            environment: const String.fromEnvironment(
+              'sentry.environment',
+              defaultValue:
+                  kReleaseMode ? 'release' : kProfileMode ? 'profile' : 'debug',
+            ),
             extra: <String, dynamic>{
               // This should really go into one of Contexts, but there's just no
               // place for it there!
@@ -137,6 +140,10 @@ class FlutterSentry {
           printing = false;
         }
       }),
+      // This has been prematurely marked deprecated -- it's a stable 2.7 API
+      // and the replacement has been introduced in the same version along with
+      // @Deprecated annotation.
+      // ignore: deprecated_member_use
       onError: (Object exception, StackTrace stackTrace) {
         debugPrint('Uncaught error in zone: $exception\n$stackTrace');
         instance.captureException(
@@ -170,10 +177,6 @@ class FlutterSentry {
               .join('\n')
           : null,
       stackTrace: stackTrace,
-      // We should not call isFlutterDriver too early, so we don't do it inside
-      // wrap() or initialize(). Default to null, which Sentry will substitute
-      // by what environmentAttributes provide.
-      environment: contexts_cache.isFlutterDriver() ? 'driver' : null,
       release: _sentry.environmentAttributes?.release ??
           contexts_cache.defaultReleaseString(),
       breadcrumbs: breadcrumbs.breadcrumbs.toList(),

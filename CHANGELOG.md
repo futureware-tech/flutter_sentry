@@ -1,3 +1,7 @@
+## 0.3.4
+
+- Replace hacky `flutter_driver` detection with `sentry.environment` override.
+
 ## 0.3.3
 
 - Always add `stackTrace` for `captureException`, using `StackTrace.current` if
