@@ -137,6 +137,10 @@ class FlutterSentry {
           printing = false;
         }
       }),
+      // This has been prematurely marked deprecated -- it's a stable 2.7 API
+      // and the replacement has been introduced in the same version along with
+      // @Deprecated annotation.
+      // ignore: deprecated_member_use
       onError: (Object exception, StackTrace stackTrace) {
         debugPrint('Uncaught error in zone: $exception\n$stackTrace');
         instance.captureException(
