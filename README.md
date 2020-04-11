@@ -71,6 +71,37 @@ other Flutter plugins and Flutter itself_.
       );
    ```
 
+## Environments
+
+It is sensible to have error reporting configured for debug builds similar to
+production. This makes sure that error reporting works as expected in all
+environments, and provides consistency.
+
+You may be even sharing the same DSN (pointer to Sentry project) between debug
+and production environments. If you don't have to worry about Sentry quotas,
+this is probably a reasonable decision for smaller projects.
+
+However, you still don't want to be alerted about each and every error that
+occurs during debugging. `FlutterSentry.wrap` helps avoiding this by setting
+`environment` attribute of error reports according to the environment your
+Flutter application is running in: `release`, `debug` or `profile`. In your
+Sentry project's "Alerts" section you can configure to only get notified about
+`release` issues.
+
+One exception may be
+[Flutter Driver](https://flutter.dev/docs/cookbook/testing/integration/introduction)
+tests running on CI environment. Pre-release tests are often one of the last
+lines of defense before releasing an application to production. Background
+failures in such tests may be uncaught (because tests are often focused on a
+specific flow) but should still alert you.
+
+For such exceptions, `flutter_sentry` allows overriding autodetected environment
+by running driver with `sentry.environment` override:
+
+```
+$ flutter drive --dart-define=sentry.environment=ci ...
+```
+
 ## Why do I have to specify DSN in multiple places?
 
 You might be wondering why a DSN value can't be specified in a single place and
