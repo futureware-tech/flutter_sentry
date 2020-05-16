@@ -1,4 +1,4 @@
-## Unreleased
+## 0.4.0
 
 - Detect Firebase Test Lab, adding it to `runtimes` context.
 - Bump native Sentry.io dependencies to support Release Health tracking.
