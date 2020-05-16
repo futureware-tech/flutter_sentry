@@ -102,6 +102,15 @@ by running driver with `sentry.environment` override:
 $ flutter drive --dart-define=sentry.environment=ci ...
 ```
 
+## Release Health tracking
+
+One of the most recent additions to Sentry.io was
+[Release Health](https://docs.sentry.io/workflow/releases/health/) tracking.
+Learn more how to set it up for
+[Android](https://docs.sentry.io/platforms/android/#release-health) and
+[iOS](https://docs.sentry.io/platforms/cocoa/#release-health). This feature does
+not yet have any Flutter specific integrations.
+
 ## Why do I have to specify DSN in multiple places?
 
 You might be wondering why a DSN value can't be specified in a single place and

@@ -14,10 +14,6 @@ public class SwiftFlutterSentryPlugin: NSObject, FlutterPlugin {
     }
 
     override init() {
-        if Client.shared != nil {
-            return;
-        }
-
         let dsn = Bundle.main.object(
             forInfoDictionaryKey: SwiftFlutterSentryPlugin.SentryDSNKey)
         if dsn == nil {
@@ -39,27 +35,17 @@ public class SwiftFlutterSentryPlugin: NSObject, FlutterPlugin {
                     String(describing: dsn),
                 ]))
         }
-
-        do {
-            Client.shared = try Client(dsn: dsnString!)
-            try Client.shared?.startCrashHandler()
-        } catch let error {
-            print("Failed to initialize Sentry: \(error)")
-        }
+        
+        SentrySDK.start(options: [
+            "dsn": dsnString!,
+        ])
     }
 
     public func handle(_ call: FlutterMethodCall,
                        result: @escaping FlutterResult) {
         switch call.method {
         case "nativeCrash":
-            if let client = Client.shared {
-                client.crash();
-            } else {
-                result(FlutterError(
-                    code: "UNAVAILABLE",
-                    message: "Sentry shared client has not been initialized",
-                    details: nil))
-            }
+            SentrySDK.crash()
         default:
            result(FlutterMethodNotImplemented)
         }
