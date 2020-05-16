@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:isolate';
 
 import 'package:flutter/foundation.dart';
@@ -18,6 +19,7 @@ class FlutterSentry {
 
   static const MethodChannel _channel = MethodChannel('flutter_sentry');
   static FlutterSentry _instance;
+  static String _cachedFirebaseTestLab;
 
   final SentryClient _sentry;
 
@@ -39,6 +41,13 @@ class FlutterSentry {
   /// a Dart exception and does nothing (on iOS) or simply crashes the app
   /// without reporting to Sentry.io (on Android).
   static Future<void> nativeCrash() => _channel.invokeMethod('nativeCrash');
+
+  /// Return the value of Firebase Test Lab System.Settings on Android, or
+  /// `null` otherwise.
+  static Future<String> isFirebaseTestLab() async =>
+      _cachedFirebaseTestLab ??= Platform.isAndroid
+          ? await _channel.invokeMethod<String>('getFirebaseTestLab')
+          : null;
 
   /// A wrapper function for `runApp()` application code. It intercepts few
   /// different error conditions:

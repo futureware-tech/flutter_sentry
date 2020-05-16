@@ -1,3 +1,7 @@
+## Unreleased
+
+- Detect Firebase Test Lab, adding it to `runtimes` context.
+
 ## 0.3.4
 
 - Replace hacky `flutter_driver` detection with `sentry.environment` override.
