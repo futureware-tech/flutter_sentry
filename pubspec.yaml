@@ -4,7 +4,7 @@ version: 0.3.4
 homepage: https://github.com/dasfoo/flutter_sentry
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.2.2 <3.0.0"
   flutter: ">=1.10.0 <2.0.0"
 
 dependencies:
