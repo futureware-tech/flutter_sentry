@@ -5,10 +5,13 @@ import 'package:flutter/widgets.dart';
 import 'package:package_info/package_info.dart';
 import 'package:sentry/sentry.dart' as sentry;
 
+import '../flutter_sentry.dart';
+
 AndroidDeviceInfo _androidDeviceInfo;
 IosDeviceInfo _iosDeviceInfo;
 PackageInfo _packageInfo;
 DateTime _firstPrefetchTime;
+String _firebaseTestLab;
 
 /// Initialize internal state by asynchronously fetching various information
 /// about device, OS and app.
@@ -23,6 +26,7 @@ void prefetch() {
     deviceInfo.iosInfo.then((info) => _iosDeviceInfo = info);
   }
 
+  FlutterSentry.isFirebaseTestLab().then((value) => _firebaseTestLab = value);
   PackageInfo.fromPlatform().then((info) => _packageInfo = info);
 }
 
@@ -56,6 +60,14 @@ sentry.Contexts currentContexts() => sentry.Contexts(
               build: _androidDeviceInfo.id,
             ),
       device: _deviceContext(),
+      runtimes: [
+        if (_firebaseTestLab != null)
+          sentry.Runtime(
+            key: '0',
+            name: 'Firebase Test Lab',
+            rawDescription: _firebaseTestLab,
+          ),
+      ],
     );
 
 sentry.Device _deviceContext() {

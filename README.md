@@ -15,7 +15,7 @@ other Flutter plugins and Flutter itself_.
 
    ```yaml
    dependencies:
-     flutter_sentry: ^0.3.4
+     flutter_sentry: ^0.4.0
    ```
 
 2. Find out a DSN value from Sentry.io and add it to native platforms:
@@ -101,6 +101,15 @@ by running driver with `sentry.environment` override:
 ```
 $ flutter drive --dart-define=sentry.environment=ci ...
 ```
+
+## Release Health tracking
+
+One of the most recent additions to Sentry.io was
+[Release Health](https://docs.sentry.io/workflow/releases/health/) tracking.
+Learn more how to set it up for
+[Android](https://docs.sentry.io/platforms/android/#release-health) and
+[iOS](https://docs.sentry.io/platforms/cocoa/#release-health). This feature does
+not yet have any Flutter specific integrations.
 
 ## Why do I have to specify DSN in multiple places?
 

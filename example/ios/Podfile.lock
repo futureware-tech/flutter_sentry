@@ -4,15 +4,18 @@ PODS:
   - Flutter (1.0.0)
   - flutter_sentry (0.0.1):
     - Flutter
-    - Sentry (~> 4.4)
-  - Sentry (4.4.3):
-    - Sentry/Core (= 4.4.3)
-  - Sentry/Core (4.4.3)
+    - Sentry (~> 5.0)
+  - package_info (0.0.1):
+    - Flutter
+  - Sentry (5.0.2):
+    - Sentry/Core (= 5.0.2)
+  - Sentry/Core (5.0.2)
 
 DEPENDENCIES:
   - device_info (from `.symlinks/plugins/device_info/ios`)
   - Flutter (from `Flutter`)
   - flutter_sentry (from `.symlinks/plugins/flutter_sentry/ios`)
+  - package_info (from `.symlinks/plugins/package_info/ios`)
 
 SPEC REPOS:
   trunk:
@@ -25,13 +28,16 @@ EXTERNAL SOURCES:
     :path: Flutter
   flutter_sentry:
     :path: ".symlinks/plugins/flutter_sentry/ios"
+  package_info:
+    :path: ".symlinks/plugins/package_info/ios"
 
 SPEC CHECKSUMS:
   device_info: cbf09d2ec12aa7110e0b09fabe54b5bd6c8efe74
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
-  flutter_sentry: 064fe77ba689da97c21429fc3c3a2c51ed5153b1
-  Sentry: 14bdd673870e8cf64932b149fad5bbbf39a9b390
+  flutter_sentry: e7e66f0717b5fba24f96891e879562bdd8985d36
+  package_info: 48b108e75b8802c2d5e126f208ef540561c98aef
+  Sentry: 5cec6146fff65c11080f78e8128582727c076e12
 
 PODFILE CHECKSUM: 1b66dae606f75376c5f2135a8290850eeb09ae83
 
-COCOAPODS: 1.8.4
+COCOAPODS: 1.9.1
