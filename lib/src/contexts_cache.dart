@@ -34,7 +34,8 @@ void prefetch() {
 /// platform-specific code.
 String defaultReleaseString() => _packageInfo == null
     ? null
-    : '${_packageInfo.packageName}-${_packageInfo.version}';
+    : '${_packageInfo.packageName}@'
+        '${_packageInfo.version}+${_packageInfo.buildNumber}';
 
 /// Snapshot of the current device state, including information obtained in
 /// [prefetch].

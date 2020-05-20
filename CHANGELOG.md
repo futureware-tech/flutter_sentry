@@ -1,3 +1,8 @@
+## 0.4.1
+
+- Update "release" `Event` field format to reflect changes in the new native
+  Sentry packages.
+
 ## 0.4.0
 
 - Detect Firebase Test Lab, adding it to `runtimes` context.
