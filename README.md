@@ -16,6 +16,8 @@ other Flutter plugins and Flutter itself_.
    ```yaml
    dependencies:
      flutter_sentry: ^0.4.0
+     # To use classes provided by sentry package (e.g. User).
+     sentry: any
    ```
 
 2. Find out a DSN value from Sentry.io and add it to native platforms:
