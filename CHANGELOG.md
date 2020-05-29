@@ -1,4 +1,4 @@
-## Unreleased
+## 0.4.2
 
 - Fix Firebase Test Lab detection (was always false negative).
 
