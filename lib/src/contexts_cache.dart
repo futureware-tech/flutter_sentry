@@ -11,7 +11,7 @@ AndroidDeviceInfo _androidDeviceInfo;
 IosDeviceInfo _iosDeviceInfo;
 PackageInfo _packageInfo;
 DateTime _firstPrefetchTime;
-String _firebaseTestLab;
+bool _firebaseTestLab;
 
 /// Initialize internal state by asynchronously fetching various information
 /// about device, OS and app.
@@ -62,11 +62,10 @@ sentry.Contexts currentContexts() => sentry.Contexts(
             ),
       device: _deviceContext(),
       runtimes: [
-        if (_firebaseTestLab != null)
-          sentry.Runtime(
-            key: '0',
-            name: 'Firebase Test Lab',
-            rawDescription: _firebaseTestLab,
+        if (_firebaseTestLab == true)
+          const sentry.Runtime(
+            key: 'Firebase Test Lab',
+            name: 'Firebase Test Lab or Pre-launch report',
           ),
       ],
     );

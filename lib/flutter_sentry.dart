@@ -19,7 +19,7 @@ class FlutterSentry {
 
   static const MethodChannel _channel = MethodChannel('flutter_sentry');
   static FlutterSentry _instance;
-  static String _cachedFirebaseTestLab;
+  static bool _cachedFirebaseTestLab;
 
   final SentryClient _sentry;
 
@@ -42,12 +42,11 @@ class FlutterSentry {
   /// without reporting to Sentry.io (on Android).
   static Future<void> nativeCrash() => _channel.invokeMethod('nativeCrash');
 
-  /// Return the value of Firebase Test Lab System.Settings on Android, or
-  /// `null` otherwise.
-  static Future<String> isFirebaseTestLab() async =>
-      _cachedFirebaseTestLab ??= Platform.isAndroid
-          ? await _channel.invokeMethod<String>('getFirebaseTestLab')
-          : null;
+  /// Return `true` if running under Firebase Test Lab (includes pre-launch
+  /// report environment) on Android, `false` otherwise.
+  static Future<bool> isFirebaseTestLab() async =>
+      _cachedFirebaseTestLab ??= Platform.isAndroid &&
+          await _channel.invokeMethod<bool>('getFirebaseTestLab');
 
   /// A wrapper function for `runApp()` application code. It intercepts few
   /// different error conditions:

@@ -12,16 +12,24 @@ import io.flutter.plugin.common.PluginRegistry.Registrar
 
 /** FlutterSentryPlugin */
 class FlutterSentryPlugin : FlutterPlugin, MethodCallHandler {
-    private var firebaseTestLab: String? = null
+    /// The MethodChannel that will the communication between Flutter and native Android
+    ///
+    /// This local reference serves to register the plugin with the Flutter Engine and unregister it
+    /// when the Flutter Engine is detached from the Activity
+    private lateinit var channel: MethodChannel
+    private var firebaseTestLab: Boolean? = null
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
+        if (firebaseTestLab == null) {
+            // https://firebase.google.com/docs/test-lab/android/android-studio.
+            val testLabSetting = Settings.System.getString(
+                    flutterPluginBinding.applicationContext.contentResolver,
+                    "firebase.test.lab")
+            firebaseTestLab = "true" == testLabSetting
+        }
+
         val channel = MethodChannel(flutterPluginBinding.binaryMessenger, "flutter_sentry")
-        channel.setMethodCallHandler(FlutterSentryPlugin())
-        // https://firebase.google.com/docs/test-lab/android/android-studio.
-        firebaseTestLab = Settings.System.getString(
-                flutterPluginBinding.applicationContext.contentResolver,
-                "firebase.test.lab"
-        )
+        channel.setMethodCallHandler(this)
     }
 
     // This static function is optional and equivalent to onAttachedToEngine. It supports the old
@@ -57,5 +65,6 @@ class FlutterSentryPlugin : FlutterPlugin, MethodCallHandler {
     }
 
     override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
+        channel.setMethodCallHandler(null)
     }
 }

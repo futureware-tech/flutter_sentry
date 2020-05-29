@@ -1,3 +1,7 @@
+## 0.4.2
+
+- Fix Firebase Test Lab detection (was always false negative).
+
 ## 0.4.1
 
 - Update "release" `Event` field format to reflect changes in the new native
