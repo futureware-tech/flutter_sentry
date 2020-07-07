@@ -23,6 +23,11 @@ class FlutterSentry {
 
   final SentryClient _sentry;
 
+  /// Enable reporting to Sentry. This can be used to disable reporting, in
+  /// debug environment for example. Does not disable printing errors to the
+  /// console. Defaults to `true`.
+  bool enabled = true;
+
   /// Assignable user-related properties which will be attached to every report
   /// created via [captureException] (this includes events reported by [wrap]).
   User userContext;
@@ -67,6 +72,7 @@ class FlutterSentry {
   static T wrap<T>(
     T Function() f, {
     @required String dsn,
+    bool enable = true,
   }) {
     var printing = false;
     return runZoned<T>(
@@ -93,6 +99,8 @@ class FlutterSentry {
             },
           ),
         );
+
+        _instance.enabled = enable;
 
         FlutterError.onError = (details) {
           FlutterError.dumpErrorToConsole(details);
@@ -169,6 +177,10 @@ class FlutterSentry {
     dynamic stackTrace,
     Map<String, dynamic> extra,
   }) {
+    if (!enabled) {
+      return Future.value();
+    }
+
     if (stackTrace == null && exception is Error) {
       stackTrace = exception.stackTrace;
     }
