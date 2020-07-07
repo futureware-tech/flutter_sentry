@@ -104,6 +104,19 @@ by running driver with `sentry.environment` override:
 $ flutter drive --dart-define=sentry.environment=ci ...
 ```
 
+For a higher degree of control, you can turn reporting on or off through the
+`enable` parameter. Passing `enable: false` will avoid passing errors to the
+Sentry library, but errors are still logged to the console.
+
+```dart
+FlutterSentry.wrap(
+  () async {
+    runApp(App());
+  },
+  enable: !kDebugMode,
+);
+```
+
 ## Release Health tracking
 
 One of the most recent additions to Sentry.io was
