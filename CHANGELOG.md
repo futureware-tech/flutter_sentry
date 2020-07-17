@@ -1,3 +1,7 @@
+## 0.4.3
+
+- Allow reporting to be disabled with 'enable' parameter
+
 ## 0.4.2
 
 - Fix Firebase Test Lab detection (was always false negative).
