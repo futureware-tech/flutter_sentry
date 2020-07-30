@@ -4,6 +4,10 @@ import Sentry
 
 public class FlutterSentryPlugin: NSObject, FlutterPlugin {
     private static let SentryDSNKey = "SentryDSN"
+    private static let SentryEnableAutoSessionTracking =
+        "SentryEnableAutoSessionTracking"
+    private static let SentrySessionTrackingIntervalMillis =
+        "SentrySessionTrackingIntervalMillis"
 
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(
@@ -37,8 +41,31 @@ public class FlutterSentryPlugin: NSObject, FlutterPlugin {
             return
         }
 
+        guard let enableAutoSessionTracking = Bundle.main.object(
+            forInfoDictionaryKey:
+                FlutterSentryPlugin.SentryEnableAutoSessionTracking
+        ) else {
+            SentrySDK.start(options: [
+                "dsn": dsnString,
+            ])
+            return
+        }
+
+        guard let sessionTrackingIntervalMillis = Bundle.main.object(
+            forInfoDictionaryKey:
+                FlutterSentryPlugin.SentryEnableAutoSessionTracking
+        ) else {
+            SentrySDK.start(options: [
+                "dsn": dsnString,
+                "enableAutoSessionTracking": enableAutoSessionTracking,
+            ])
+            return
+        }
+
         SentrySDK.start(options: [
             "dsn": dsnString,
+            "enableAutoSessionTracking": enableAutoSessionTracking,
+            "sessionTrackingIntervalMillis": sessionTrackingIntervalMillis,
         ])
     }
 
