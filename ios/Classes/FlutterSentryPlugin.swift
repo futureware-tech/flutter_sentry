@@ -2,20 +2,20 @@ import Flutter
 import UIKit
 import Sentry
 
-public class SwiftFlutterSentryPlugin: NSObject, FlutterPlugin {
+public class FlutterSentryPlugin: NSObject, FlutterPlugin {
     private static let SentryDSNKey = "SentryDSN"
 
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(
             name: "flutter_sentry",
             binaryMessenger: registrar.messenger())
-        let instance = SwiftFlutterSentryPlugin()
+        let instance = FlutterSentryPlugin()
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
 
     override init() {
         let dsn = Bundle.main.object(
-            forInfoDictionaryKey: SwiftFlutterSentryPlugin.SentryDSNKey)
+            forInfoDictionaryKey: FlutterSentryPlugin.SentryDSNKey)
         if dsn == nil {
             NSException.raise(
                 NSExceptionName.invalidArgumentException,
@@ -35,7 +35,7 @@ public class SwiftFlutterSentryPlugin: NSObject, FlutterPlugin {
                     String(describing: dsn),
                 ]))
         }
-        
+
         SentrySDK.start(options: [
             "dsn": dsnString!,
         ])
