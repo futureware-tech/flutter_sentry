@@ -1,5 +1,6 @@
 package org.dasfoo.flutter_sentry
 
+import android.os.Looper
 import android.provider.Settings
 import androidx.annotation.NonNull
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -8,6 +9,7 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.Registrar
+import java.lang.IllegalStateException
 
 
 /** FlutterSentryPlugin */
@@ -52,10 +54,15 @@ class FlutterSentryPlugin : FlutterPlugin, MethodCallHandler {
 
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
         if (call.method == "nativeCrash") {
+            val exception = IllegalStateException("Caused by FlutterSentry.nativeCrash");
+            val mainThread = Looper.getMainLooper().thread;
+            mainThread.uncaughtExceptionHandler.uncaughtException(mainThread, exception);
+            // Let the thread crash before reporting a failed crash attempt.
+            mainThread.join(1000)
+
             // Return an error in case something goes wrong and we get past the crash.
             result.error("FAILED_PRECONDITION", "Failed to cause a native crash.", null)
-            // Throw an error that a sane implementation will not suppress.
-            throw OutOfMemoryError("This is a nativeCrash method call.")
+            throw exception;
         } else if (call.method == "getFirebaseTestLab") {
             result.success(firebaseTestLab)
             return

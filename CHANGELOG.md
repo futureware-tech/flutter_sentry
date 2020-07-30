@@ -1,6 +1,10 @@
+## Unreleased
+
+- Reliably cause a native crash on Android.
+
 ## 0.4.3
 
-- Allow reporting to be disabled with 'enable' parameter
+- Allow reporting to be disabled with 'enable' parameter.
 
 ## 0.4.2
 
