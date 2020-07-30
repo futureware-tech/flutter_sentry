@@ -14,19 +14,19 @@ public class FlutterSentryPlugin: NSObject, FlutterPlugin {
     }
 
     override init() {
-        let dsn = Bundle.main.object(
-            forInfoDictionaryKey: FlutterSentryPlugin.SentryDSNKey)
-        if dsn == nil {
+        guard let dsn = Bundle.main.object(
+            forInfoDictionaryKey: FlutterSentryPlugin.SentryDSNKey
+        ) else {
             NSException.raise(
                 NSExceptionName.invalidArgumentException,
                 format:"The value for key %@ is not set in Info.plist",
                 arguments: getVaList([
                     Self.SentryDSNKey,
                 ]))
+            return
         }
 
-        let dsnString = dsn as? String
-        if dsnString == nil {
+        guard let dsnString = dsn as? String else {
             NSException.raise(
                 NSExceptionName.invalidArgumentException,
                 format:"The value for key %@ is not a <string> type: %@",
@@ -34,10 +34,11 @@ public class FlutterSentryPlugin: NSObject, FlutterPlugin {
                     Self.SentryDSNKey,
                     String(describing: dsn),
                 ]))
+            return
         }
 
         SentrySDK.start(options: [
-            "dsn": dsnString!,
+            "dsn": dsnString,
         ])
     }
 
