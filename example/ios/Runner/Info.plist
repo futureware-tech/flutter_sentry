@@ -4,6 +4,10 @@
 <dict>
 	<key>SentryDSN</key>
 	<string>https://420a0b0766e9450fbd3a456346c6eed2@sentry.io/1867468</string>
+	<key>SentryEnableAutoSessionTracking</key>
+	<true/>
+	<key>SentrySessionTrackingIntervalMillis</key>
+	<integer>10000</integer>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
