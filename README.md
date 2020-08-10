@@ -126,6 +126,32 @@ Learn more how to set it up for
 [iOS](https://docs.sentry.io/platforms/cocoa/#release-health). This feature does
 not yet have any Flutter specific integrations.
 
+   **NOTE**: Session tracking is disabled by default and the timeout for a session defaults to 30000 milliseconds (30 seconds).
+
+   - iOS: in `ios/Runner/Info.plist`:
+
+     ```xml
+     <dict>
+       ... existing configuration parameters ...
+       <key>SentryEnableAutoSessionTracking</key>
+       <true/>
+       <key>SentrySessionTrackingIntervalMillis</key>
+       <integer>60000</integer>
+     </dict>
+     ```
+
+   - Android: in `android/app/src/main/AndroidManifest.xml`:
+
+     ```xml
+     <application>
+       <meta-data
+           android:name="io.sentry.session-tracking.enable"
+           android:value="true"/>
+       <meta-data
+           android:name="io.sentry.session-tracking.timeout-interval-millis"
+           android:value="60000" />
+     ```
+
 ## Why do I have to specify DSN in multiple places?
 
 You might be wondering why a DSN value can't be specified in a single place and

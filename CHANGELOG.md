@@ -1,6 +1,7 @@
 ## Unreleased
 
 - Reliably cause a native crash on Android.
+- Support release health tracking for iOS. This was previously added for Android in 0.4.0
 
 ## 0.4.3
 
