@@ -1,9 +1,11 @@
 package org.dasfoo.flutter_sentry
 
+import android.content.Context
 import android.os.Looper
 import android.provider.Settings
 import androidx.annotation.NonNull
 import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -22,16 +24,7 @@ class FlutterSentryPlugin : FlutterPlugin, MethodCallHandler {
     private var firebaseTestLab: Boolean? = null
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-        if (firebaseTestLab == null) {
-            // https://firebase.google.com/docs/test-lab/android/android-studio.
-            val testLabSetting = Settings.System.getString(
-                    flutterPluginBinding.applicationContext.contentResolver,
-                    "firebase.test.lab")
-            firebaseTestLab = "true" == testLabSetting
-        }
-
-        val channel = MethodChannel(flutterPluginBinding.binaryMessenger, "flutter_sentry")
-        channel.setMethodCallHandler(this)
+        setup(flutterPluginBinding.applicationContext, flutterPluginBinding.binaryMessenger)
     }
 
     // This static function is optional and equivalent to onAttachedToEngine. It supports the old
@@ -47,9 +40,21 @@ class FlutterSentryPlugin : FlutterPlugin, MethodCallHandler {
         @JvmStatic
         @Suppress("unused")
         fun registerWith(registrar: Registrar) {
-            val channel = MethodChannel(registrar.messenger(), "flutter_sentry")
-            channel.setMethodCallHandler(FlutterSentryPlugin())
+            val plugin = FlutterSentryPlugin()
+            plugin.setup(registrar.context(), registrar.messenger())
         }
+    }
+
+    internal fun setup(@NonNull context: Context, @NonNull messenger: BinaryMessenger) {
+        if (firebaseTestLab == null) {
+            // https://firebase.google.com/docs/test-lab/android/android-studio.
+            val testLabSetting = Settings.System.getString(context.contentResolver,
+                    "firebase.test.lab")
+            firebaseTestLab = "true" == testLabSetting
+        }
+
+        channel = MethodChannel(messenger, "flutter_sentry")
+        channel.setMethodCallHandler(this)
     }
 
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
