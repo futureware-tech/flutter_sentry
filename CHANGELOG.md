@@ -1,4 +1,4 @@
-## Unreleased
+## 0.4.4
 
 - Reliably cause a native crash on Android.
 - Fix #38 `kotlin.UninitializedPropertyAccessException` in Android plugin

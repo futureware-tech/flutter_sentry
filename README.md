@@ -15,7 +15,7 @@ other Flutter plugins and Flutter itself_.
 
    ```yaml
    dependencies:
-     flutter_sentry: ^0.4.3
+     flutter_sentry: ^0.4.4
      # To use classes provided by sentry package (e.g. User).
      sentry: any
    ```
@@ -126,31 +126,31 @@ Learn more how to set it up for
 [iOS](https://docs.sentry.io/platforms/cocoa/#release-health). This feature does
 not yet have any Flutter specific integrations.
 
-   **NOTE**: Session tracking is disabled by default and the timeout for a session defaults to 30000 milliseconds (30 seconds).
+**NOTE**: Session tracking is disabled by default and the timeout for a session defaults to 30000 milliseconds (30 seconds).
 
-   - iOS: in `ios/Runner/Info.plist`:
+- iOS: in `ios/Runner/Info.plist`:
 
-     ```xml
-     <dict>
-       ... existing configuration parameters ...
-       <key>SentryEnableAutoSessionTracking</key>
-       <true/>
-       <key>SentrySessionTrackingIntervalMillis</key>
-       <integer>60000</integer>
-     </dict>
-     ```
+  ```xml
+  <dict>
+    ... existing configuration parameters ...
+    <key>SentryEnableAutoSessionTracking</key>
+    <true/>
+    <key>SentrySessionTrackingIntervalMillis</key>
+    <integer>60000</integer>
+  </dict>
+  ```
 
-   - Android: in `android/app/src/main/AndroidManifest.xml`:
+- Android: in `android/app/src/main/AndroidManifest.xml`:
 
-     ```xml
-     <application>
-       <meta-data
-           android:name="io.sentry.session-tracking.enable"
-           android:value="true"/>
-       <meta-data
-           android:name="io.sentry.session-tracking.timeout-interval-millis"
-           android:value="60000" />
-     ```
+  ```xml
+  <application>
+    <meta-data
+        android:name="io.sentry.session-tracking.enable"
+        android:value="true"/>
+    <meta-data
+        android:name="io.sentry.session-tracking.timeout-interval-millis"
+        android:value="60000" />
+  ```
 
 ## Why do I have to specify DSN in multiple places?
 
