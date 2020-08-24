@@ -28,6 +28,12 @@ class FlutterSentry {
   /// console. Defaults to `true`.
   bool enabled = true;
 
+  /// Hook when capturing an Exception. If return non-null value, the
+  /// actually captured exception and stack trace will be the returned one.
+  /// If return null, the exception will be ignore.
+  ExceptionAndStackTrace Function({dynamic exception, dynamic stackTrace})
+    captureExceptionPreHook;
+
   /// Assignable user-related properties which will be attached to every report
   /// created via [captureException] (this includes events reported by [wrap]).
   User userContext;
@@ -181,6 +187,17 @@ class FlutterSentry {
       return Future.value();
     }
 
+    if (captureExceptionPreHook != null) {
+      final transformed = captureExceptionPreHook.call(
+          exception: exception, stackTrace: stackTrace);
+      if (transformed == null) {
+        return Future.value();
+      }else{
+        exception = transformed.exception;
+        stackTrace = transformed.stackTrace;
+      }
+    }
+
     if (stackTrace == null && exception is Error) {
       stackTrace = exception.stackTrace;
     }
@@ -262,4 +279,9 @@ class FlutterSentry {
       throw StateError('FlutterSentry has already been initialized');
     }
   }
+}
+
+class ExceptionAndStackTrace {
+  dynamic exception;
+  dynamic stackTrace;
 }
