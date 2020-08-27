@@ -122,15 +122,12 @@ class FlutterSentry {
             // https://api.dartlang.org/stable/2.7.0/dart-isolate/Isolate/addErrorListener.html
             final dynamic error = errorAndStacktrace[0],
                 stackTrace = errorAndStacktrace[1];
-            // RawReceivePort is exempt from zones, but we don't need this error
-            // message as a breadcrumb, anyway.
-            debugPrint(
-                'Uncaught error in Flutter isolate: $error\n$stackTrace');
             instance.captureException(
               exception: error,
               stackTrace: stackTrace is String
                   ? StackTrace.fromString(stackTrace)
                   : null,
+              debugPrintPrefix: 'Uncaught error in Flutter isolate: ',
             );
           }).sendPort,
         );
@@ -167,10 +164,10 @@ class FlutterSentry {
       // @Deprecated annotation.
       // ignore: deprecated_member_use
       onError: (Object exception, StackTrace stackTrace) {
-        debugPrint('Uncaught error in zone: $exception\n$stackTrace');
         instance.captureException(
           exception: exception,
           stackTrace: stackTrace,
+          debugPrintPrefix: 'Uncaught error in zone: ',
         );
       },
     );
@@ -182,11 +179,8 @@ class FlutterSentry {
     @required dynamic exception,
     dynamic stackTrace,
     Map<String, dynamic> extra,
+    String debugPrintPrefix,
   }) {
-    if (!enabled) {
-      return Future.value();
-    }
-
     if (captureExceptionPreHook != null) {
       final transformed = captureExceptionPreHook.call(
           exception: exception, stackTrace: stackTrace);
@@ -196,6 +190,14 @@ class FlutterSentry {
         exception = transformed.exception;
         stackTrace = transformed.stackTrace;
       }
+    }
+    
+    if (debugPrintPrefix != null) {
+      debugPrint('$debugPrintPrefix$exception\n$stackTrace');
+    }
+
+    if (!enabled) {
+      return Future.value();
     }
 
     if (stackTrace == null && exception is Error) {
