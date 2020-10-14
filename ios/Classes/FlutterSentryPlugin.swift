@@ -86,8 +86,23 @@ public class FlutterSentryPlugin: NSObject, FlutterPlugin {
         switch call.method {
         case "nativeCrash":
             SentrySDK.crash()
+        case "setEnvironment":
+            setEnvironment(call, result: result)
         default:
            result(FlutterMethodNotImplemented)
         }
+    }
+    
+    func setEnvironment(_ call: FlutterMethodCall,
+                        result: @escaping FlutterResult) {
+        guard let arguments = call.arguments as? [String: Any?],
+            let environment = arguments["environment"] as? String else {
+                return result(FlutterError(code: "MISSING_PARAMS", message: "Missing 'environment' parameter", details: nil))
+        }
+
+        SentrySDK.configureScope({ (scope: Scope) in
+            scope.setEnvironment(environment)
+            result(nil)
+        })
     }
 }

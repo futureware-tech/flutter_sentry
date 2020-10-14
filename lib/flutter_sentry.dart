@@ -53,6 +53,11 @@ class FlutterSentry {
       _cachedFirebaseTestLab ??= Platform.isAndroid &&
           await _channel.invokeMethod<bool>('getFirebaseTestLab');
 
+  /// Update scope with environment tag
+  static Future<void> setEnvironment(String environment) async {
+    _channel.invokeMethod('setEnvironment', {'environment': environment});
+  }
+
   /// A wrapper function for `runApp()` application code. It intercepts few
   /// different error conditions:
   ///
@@ -89,8 +94,11 @@ class FlutterSentry {
           environmentAttributes: Event(
             environment: const String.fromEnvironment(
               'sentry.environment',
-              defaultValue:
-                  kReleaseMode ? 'release' : kProfileMode ? 'profile' : 'debug',
+              defaultValue: kReleaseMode
+                  ? 'release'
+                  : kProfileMode
+                      ? 'profile'
+                      : 'debug',
             ),
             extra: <String, dynamic>{
               // This should really go into one of Contexts, but there's just no
