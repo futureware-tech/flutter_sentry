@@ -55,7 +55,8 @@ class FlutterSentry {
 
   /// Update scope with environment tag
   static Future<void> setEnvironment(String environment) async {
-    await _channel.invokeMethod('setEnvironment', {'environment': environment});
+    await _channel
+        .invokeMethod<dynamic>('setEnvironment', {'environment': environment});
   }
 
   /// A wrapper function for `runApp()` application code. It intercepts few
