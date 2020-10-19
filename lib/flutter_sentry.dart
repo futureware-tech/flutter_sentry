@@ -113,6 +113,7 @@ class FlutterSentry {
           instance.captureException(
             exception: details.exception,
             stackTrace: details.stack,
+            debugPrintPrefix: 'More details of FlutterError.onError: ',
           );
         };
 
