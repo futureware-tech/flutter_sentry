@@ -74,6 +74,7 @@ class FlutterSentryPlugin : FlutterPlugin, MethodCallHandler {
             return
         } else if (call.method == "setEnvironment") {
             setEnvironment(call, result)
+            return
         }
 
         result.notImplemented()
