@@ -5,6 +5,7 @@ import 'dart:isolate';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
 import 'src/breadcrumb_tracker.dart';
@@ -23,10 +24,39 @@ class FlutterSentry {
 
   final SentryClient _sentry;
 
-  /// Enable reporting to Sentry. This can be used to disable reporting, in
-  /// debug environment for example. Does not disable printing errors to the
-  /// console. Defaults to `true`.
-  bool enabled = true;
+  /// Enable reporting to Sentry.io from Dart. DEPRECATED. This can be used to
+  /// disable reporting, in debug environment for example. Does not disable
+  /// [captureExceptionFilter], printing errors to the console or native
+  /// platform reporting. Defaults to `true`.
+  @Deprecated('Use captureExceptionAction instead.')
+  bool get enabled =>
+      captureExceptionAction == CaptureExceptionAction.logAndReport;
+
+  @Deprecated('Set captureExceptionAction instead.')
+  set enabled(bool value) => captureExceptionAction = value
+      ? CaptureExceptionAction.logAndReport
+      : CaptureExceptionAction.logOnly;
+
+  /// Default action for [captureException] to take. It can be used to disable
+  /// reporting, for example, in debug environment. [captureExceptionFilter] is
+  /// still called, and its return value overrides what is set here.
+  ///
+  /// This setting has no effect on platform-specific exception reports.
+  CaptureExceptionAction captureExceptionAction =
+      CaptureExceptionAction.logAndReport;
+
+  /// If not `null`, called every time [captureException] is invoked, which
+  /// includes exceptions intercepted by [wrap]. The `captureParameters` can be
+  /// modified and will affect what is logged and reported to Sentry.io. The
+  /// return value overrides [captureExceptionAction] set in this instance.
+  ///
+  /// NOTE: this method is called after parameters to [captureException] have
+  /// been processed; for example, [CaptureExceptionParameters.stackTrace] may
+  /// be populated with current stack trace if the input value has been `null`.
+  /// Consequently, no additional mangling of the parameters is performed after
+  /// this method.
+  CaptureExceptionAction Function(CaptureExceptionParameters captureParameters)
+      captureExceptionFilter;
 
   /// Assignable user-related properties which will be attached to every report
   /// created via [captureException] (this includes events reported by [wrap]).
@@ -72,7 +102,8 @@ class FlutterSentry {
   static T wrap<T>(
     T Function() f, {
     @required String dsn,
-    bool enable = true,
+    @Deprecated('Set FlutterSentry.instance.captureExceptionAction in wrap().')
+        bool enable = true,
   }) {
     var printing = false;
     return runZoned<T>(
@@ -103,6 +134,8 @@ class FlutterSentry {
           ),
         );
 
+        // Supports deprecated parameters to wrap().
+        // ignore: deprecated_member_use_from_same_package
         _instance.enabled = enable;
 
         FlutterError.onError = (details) {
@@ -110,6 +143,8 @@ class FlutterSentry {
           instance.captureException(
             exception: details.exception,
             stackTrace: details.stack,
+            // TODO(dotdoom): add FlutterError details to extra.
+            logPrefix: 'More details from FlutterError.onError: ',
           );
         };
 
@@ -119,15 +154,12 @@ class FlutterSentry {
             // https://api.dartlang.org/stable/2.7.0/dart-isolate/Isolate/addErrorListener.html
             final dynamic error = errorAndStacktrace[0],
                 stackTrace = errorAndStacktrace[1];
-            // RawReceivePort is exempt from zones, but we don't need this error
-            // message as a breadcrumb, anyway.
-            debugPrint(
-                'Uncaught error in Flutter isolate: $error\n$stackTrace');
             instance.captureException(
               exception: error,
               stackTrace: stackTrace is String
                   ? StackTrace.fromString(stackTrace)
                   : null,
+              logPrefix: 'Uncaught error in Flutter isolate: ',
             );
           }).sendPort,
         );
@@ -164,10 +196,10 @@ class FlutterSentry {
       // @Deprecated annotation.
       // ignore: deprecated_member_use
       onError: (Object exception, StackTrace stackTrace) {
-        debugPrint('Uncaught error in zone: $exception\n$stackTrace');
         instance.captureException(
           exception: exception,
           stackTrace: stackTrace,
+          logPrefix: 'Uncaught error in zone: ',
         );
       },
     );
@@ -176,36 +208,49 @@ class FlutterSentry {
   /// Reports the [exception] and optionally its [stackTrace] to Sentry.io. It
   /// also reports device info and [breadcrumbs].
   Future<SentryResponse> captureException({
-    @required dynamic exception,
-    dynamic stackTrace,
-    Map<String, dynamic> extra,
+    @required final dynamic exception,
+    final dynamic stackTrace,
+    final Map<String, dynamic> extra,
+    String logPrefix,
   }) {
-    if (!enabled) {
+    final parameters = CaptureExceptionParameters._(
+      exception: exception,
+      stackTrace: stackTrace,
+      extra: extra,
+    );
+    if (parameters.stackTrace == null && parameters.exception is Error) {
+      parameters.stackTrace = exception.stackTrace;
+    }
+    if (parameters.stackTrace == null ||
+        parameters.stackTrace.toString().isEmpty) {
+      // If the stack trace has been forgotten or is empty (as Future.timeout
+      // often does), fall back to current stack trace, which should give a clue
+      // of at least where the exception was caught.
+      parameters.stackTrace ??= StackTrace.current;
+    }
+
+    var action = captureExceptionAction;
+    if (captureExceptionFilter != null) {
+      action = captureExceptionFilter(parameters);
+    }
+
+    if (action != CaptureExceptionAction.ignore) {
+      logPrefix ??= '';
+      debugPrint('$logPrefix${parameters.exception}\n${parameters.stackTrace}');
+    }
+    if (action != CaptureExceptionAction.logAndReport) {
       return Future.value();
     }
 
-    if (stackTrace == null && exception is Error) {
-      stackTrace = exception.stackTrace;
-    }
-    stackTrace ??= StackTrace.current;
-
     final event = Event(
-      exception: exception,
-      // Workaround for https://github.com/flutter/flutter/issues/54038.
-      message: exception is FlutterError
-          ? exception.diagnostics
-              .whereType<ErrorSummary>()
-              .map((node) => node.value?.join('\n'))
-              .where((nodeValue) => nodeValue != null)
-              .join('\n')
-          : null,
-      stackTrace: stackTrace,
+      exception: parameters.exception,
+      stackTrace: parameters.stackTrace,
       release: _sentry.environmentAttributes?.release ??
           contexts_cache.defaultReleaseString(),
       breadcrumbs: breadcrumbs.breadcrumbs.toList(),
       userContext: userContext,
       contexts: contexts_cache.currentContexts(),
-      extra: extra,
+      extra: parameters.extra,
     );
     return _sentry.capture(event: event, stackFrameFilter: stackFrameFilter);
   }
@@ -232,6 +277,15 @@ class FlutterSentry {
   /// initialized with [initialize] method, or `null` if the instance has not
   /// been initialized.
   static FlutterSentry get instance => _instance;
+
+  /// DO NOT USE. For [FlutterSentry] internal testing only. Clears the instance
+  /// of this [FlutterSentry]. This does not affect how interaction with native
+  /// platform is done, which is the reason why only one instance should be
+  /// available for user at a time (to avoid confusion).
+  @visibleForTesting
+  static void deinitialize() {
+    _instance = null;
+  }
 
   /// Initialize [FlutterSentry] with [dsn] received from Sentry.io, making an
   /// instance available via [instance] property. It is an [Error] to call this
@@ -265,4 +319,34 @@ class FlutterSentry {
       throw StateError('FlutterSentry has already been initialized');
     }
   }
+}
+
+/// Parameters passed to [FlutterSentry.captureException].
+class CaptureExceptionParameters {
+  CaptureExceptionParameters._({
+    this.exception,
+    this.stackTrace,
+    this.extra,
+  });
+
+  /// Reported exception. See [FlutterSentry.captureException].
+  dynamic exception;
+
+  /// Reported stack trace. See [FlutterSentry.captureException].
+  dynamic stackTrace;
+
+  /// Reported extra tags. See [FlutterSentry.captureException].
+  Map<String, dynamic> extra;
+}
+
+/// Action to be performed by [FlutterSentry.captureException].
+enum CaptureExceptionAction {
+  /// Log the exception via [debugPrint] and report to Sentry.io.
+  logAndReport,
+
+  /// Only log the exception via [debugPrint] but do not report to Sentry.io.
+  logOnly,
+
+  /// Completely ignore this exception instance.
+  ignore,
 }

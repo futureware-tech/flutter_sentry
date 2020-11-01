@@ -13,6 +13,8 @@ void main() {
           settings: RouteSettings(name: name, arguments: arguments),
         );
 
+    tearDown(FlutterSentry.deinitialize);
+
     test('tracks navigation into breadcrumbs by default', () {
       final t = BreadcrumbTracker();
       final observer = FlutterSentryNavigatorObserver(breadcrumbs: t);
