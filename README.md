@@ -15,7 +15,7 @@ other Flutter plugins and Flutter itself_.
 
    ```yaml
    dependencies:
-     flutter_sentry: ^0.4.4
+     flutter_sentry: ^0.5.0
      # To use classes provided by sentry package (e.g. User).
      sentry: any
    ```

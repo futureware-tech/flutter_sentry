@@ -1,4 +1,4 @@
-## Unreleased
+## 0.5.0
 
 - Deprecate 'enable' and configure reporting either statically, via
   `captureExceptionAction`, or dynamically on per-exception basis via
