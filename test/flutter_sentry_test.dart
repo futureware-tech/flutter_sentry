@@ -1,11 +1,17 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_sentry/flutter_sentry.dart';
+import 'package:flutter_sentry/src/contexts_cache.dart';
 import 'package:mockito/mockito.dart';
+import 'package:package_info/package_info.dart';
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
 void main() {
   group('FlutterSentry', () {
+    setUpAll(() {
+      packageInfo = PackageInfo();
+    });
+
     tearDown(FlutterSentry.deinitialize);
 
     test('defaultStackFrameFilter marks "flutter" frames as not in_app', () {
