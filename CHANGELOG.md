@@ -1,3 +1,7 @@
+## 0.5.1
+
+- Add meta package to dependencies in `pubspec.yaml`.
+
 ## 0.5.0
 
 - Deprecate 'enable' and configure reporting either statically, via
