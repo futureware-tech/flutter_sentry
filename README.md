@@ -1,6 +1,6 @@
 [![pub package](https://img.shields.io/pub/v/flutter_sentry.svg)](https://pub.dev/packages/flutter_sentry)
-[![flutter build](https://github.com/dasfoo/flutter_sentry/workflows/flutter/badge.svg?branch=master&event=push)](https://github.com/dasfoo/flutter_sentry/actions?query=workflow%3Aflutter+branch%3Amaster)
-[![code coverage](https://codecov.io/gh/dasfoo/flutter_sentry/branch/master/graph/badge.svg)](https://codecov.io/gh/dasfoo/flutter_sentry)
+[![flutter build](https://github.com/futureware-tech/flutter_sentry/workflows/flutter/badge.svg?branch=master&event=push)](https://github.com/futureware-tech/flutter_sentry/actions?query=workflow%3Aflutter+branch%3Amaster)
+[![code coverage](https://codecov.io/gh/futureware-tech/flutter_sentry/branch/master/graph/badge.svg)](https://codecov.io/gh/futureware-tech/flutter_sentry)
 
 **NOTE**: _While [`sentry`](https://pub.dev/packages/sentry) package provides a
 low-level functionality to report exceptions from Dart/Flutter code,
