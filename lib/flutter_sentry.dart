@@ -120,8 +120,11 @@ class FlutterSentry {
           environmentAttributes: Event(
             environment: const String.fromEnvironment(
               'sentry.environment',
-              defaultValue:
-                  kReleaseMode ? 'release' : kProfileMode ? 'profile' : 'debug',
+              defaultValue: kReleaseMode
+                  ? 'release'
+                  : kProfileMode
+                      ? 'profile'
+                      : 'debug',
             ),
             extra: <String, dynamic>{
               // This should really go into one of Contexts, but there's just no
