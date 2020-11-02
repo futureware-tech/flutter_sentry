@@ -233,7 +233,7 @@ class FlutterSentry {
       // If the stack trace has been forgotten or is empty (as Future.timeout
       // often does), fall back to current stack trace, which should give a clue
       // of at least where the exception was caught.
-      parameters.stackTrace ??= StackTrace.current;
+      parameters.stackTrace = StackTrace.current;
     }
 
     var action = captureExceptionAction;

@@ -1,6 +1,8 @@
 ## Unreleased
 
 - Set environment tag for native layer.
+- Actually fallback to current stack trace if the one passed to
+  `captureException` is empty.
 
 ## 0.5.1
 
