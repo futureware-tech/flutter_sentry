@@ -2,6 +2,18 @@
 
 - Set environment tag for native layer.
 
+## 0.5.1
+
+- Add meta package to dependencies in `pubspec.yaml`.
+
+## 0.5.0
+
+- Deprecate 'enable' and configure reporting either statically, via
+  `captureExceptionAction`, or dynamically on per-exception basis via
+  `captureExceptionFilter` (which also allows modifying reported exception).
+- Fallback to current stack trace if the one passed to `captureException` is
+  empty (previously was only for `null` stack traces).
+
 ## 0.4.4
 
 - Reliably cause a native crash on Android.
