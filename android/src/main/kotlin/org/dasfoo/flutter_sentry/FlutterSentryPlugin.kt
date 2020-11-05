@@ -11,6 +11,7 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.Registrar
+import io.sentry.core.Sentry
 import java.lang.IllegalStateException
 
 
@@ -71,6 +72,9 @@ class FlutterSentryPlugin : FlutterPlugin, MethodCallHandler {
         } else if (call.method == "getFirebaseTestLab") {
             result.success(firebaseTestLab)
             return
+        } else if (call.method == "setEnvironment") {
+            setEnvironment(call, result)
+            return
         }
 
         result.notImplemented()
@@ -78,5 +82,15 @@ class FlutterSentryPlugin : FlutterPlugin, MethodCallHandler {
 
     override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
         channel.setMethodCallHandler(null)
+    }
+
+    private fun setEnvironment(@NonNull call: MethodCall, @NonNull result: Result) {
+        val environment = call.argument<String>("environment") ?:
+            return result.error("MISSING_PARAMS", "Missing 'environment' parameter", null)
+
+        Sentry.configureScope {
+            it.setTag("environment", environment)
+            result.success(null)
+        }
     }
 }

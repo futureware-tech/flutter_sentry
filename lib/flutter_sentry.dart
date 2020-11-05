@@ -83,6 +83,13 @@ class FlutterSentry {
       _cachedFirebaseTestLab ??= Platform.isAndroid &&
           await _channel.invokeMethod<bool>('getFirebaseTestLab');
 
+  /// Update scope with environment tag
+  static Future<void> setNativePlatformEnvironment(String environment) async {
+    assert(environment != null, "Missing 'environment' parameter");
+    await _channel
+        .invokeMethod<dynamic>('setEnvironment', {'environment': environment});
+  }
+
   /// A wrapper function for `runApp()` application code. It intercepts few
   /// different error conditions:
   ///
