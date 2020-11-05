@@ -84,7 +84,8 @@ class FlutterSentry {
           await _channel.invokeMethod<bool>('getFirebaseTestLab');
 
   /// Update scope with environment tag
-  static Future<void> setEnvironment(String environment) async {
+  static Future<void> setNativePlatformEnvironment(String environment) async {
+    assert(environment != null, "Missing 'environment' parameter");
     await _channel
         .invokeMethod<dynamic>('setEnvironment', {'environment': environment});
   }
