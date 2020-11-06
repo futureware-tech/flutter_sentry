@@ -140,6 +140,11 @@ class FlutterSentry {
               // This should really go into one of Contexts, but there's just no
               // place for it there!
               'locale': window.locale.toString(),
+            },
+            // The difference between "extra" and "tags" is that tags are
+            // visible at the top of the event (as a chip) and most important,
+            // tags are searchable (i.e. can filter events on a tag value).
+            tags: {
               // Session ID allows tracking errors happening throughout entire
               // session, which is especially relevant when user tracking is
               // enabled but an event happens before sign in is initialized.
