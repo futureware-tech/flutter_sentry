@@ -118,6 +118,15 @@ class FlutterSentry {
         WidgetsFlutterBinding.ensureInitialized();
         final window = WidgetsBinding.instance.window;
 
+        const environment = String.fromEnvironment(
+          'sentry.environment',
+          defaultValue: kReleaseMode
+              ? 'release'
+              : kProfileMode
+                  ? 'profile'
+                  : 'debug',
+        );
+
         // initialize() calls for WidgetsFlutterBinding.ensureInitialized(),
         // which is necessary to initialize Flutter method channels so that
         // our plugin can call into the native code. It also must be in the same
@@ -125,14 +134,7 @@ class FlutterSentry {
         initialize(
           dsn: dsn,
           environmentAttributes: Event(
-            environment: const String.fromEnvironment(
-              'sentry.environment',
-              defaultValue: kReleaseMode
-                  ? 'release'
-                  : kProfileMode
-                      ? 'profile'
-                      : 'debug',
-            ),
+            environment: environment,
             extra: <String, dynamic>{
               // This should really go into one of Contexts, but there's just no
               // place for it there!
@@ -140,6 +142,7 @@ class FlutterSentry {
             },
           ),
         );
+        setNativePlatformEnvironment(environment);
 
         // Supports deprecated parameters to wrap().
         // ignore: deprecated_member_use_from_same_package
