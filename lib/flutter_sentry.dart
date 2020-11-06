@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
+import 'package:uuid/uuid.dart';
 
 import 'src/breadcrumb_tracker.dart';
 import 'src/contexts_cache.dart' as contexts_cache;
@@ -139,6 +140,10 @@ class FlutterSentry {
               // This should really go into one of Contexts, but there's just no
               // place for it there!
               'locale': window.locale.toString(),
+              // Session ID allows tracking errors happening throughout entire
+              // session, which is especially relevant when user tracking is
+              // enabled but an event happens before sign in is initialized.
+              'session_id': Uuid().v1(),
             },
           ),
         );
