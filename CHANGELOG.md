@@ -1,6 +1,9 @@
-## Unreleased
+## 0.6.0
 
 - Set environment tag for native layer.
+- Actually fallback to current stack trace if the one passed to
+  `captureException` is empty.
+- Track user sessions using a unique session ID.
 
 ## 0.5.1
 

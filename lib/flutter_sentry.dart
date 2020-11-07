@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
+import 'package:uuid/uuid.dart';
 
 import 'src/breadcrumb_tracker.dart';
 import 'src/contexts_cache.dart' as contexts_cache;
@@ -118,6 +119,15 @@ class FlutterSentry {
         WidgetsFlutterBinding.ensureInitialized();
         final window = WidgetsBinding.instance.window;
 
+        const environment = String.fromEnvironment(
+          'sentry.environment',
+          defaultValue: kReleaseMode
+              ? 'release'
+              : kProfileMode
+                  ? 'profile'
+                  : 'debug',
+        );
+
         // initialize() calls for WidgetsFlutterBinding.ensureInitialized(),
         // which is necessary to initialize Flutter method channels so that
         // our plugin can call into the native code. It also must be in the same
@@ -125,21 +135,24 @@ class FlutterSentry {
         initialize(
           dsn: dsn,
           environmentAttributes: Event(
-            environment: const String.fromEnvironment(
-              'sentry.environment',
-              defaultValue: kReleaseMode
-                  ? 'release'
-                  : kProfileMode
-                      ? 'profile'
-                      : 'debug',
-            ),
+            environment: environment,
             extra: <String, dynamic>{
               // This should really go into one of Contexts, but there's just no
               // place for it there!
               'locale': window.locale.toString(),
             },
+            // The difference between "extra" and "tags" is that tags are
+            // visible at the top of the event (as a chip) and most important,
+            // tags are searchable (i.e. can filter events on a tag value).
+            tags: {
+              // Session ID allows tracking errors happening throughout entire
+              // session, which is especially relevant when user tracking is
+              // enabled but an event happens before sign in is initialized.
+              'session_id': Uuid().v1(),
+            },
           ),
         );
+        setNativePlatformEnvironment(environment);
 
         // Supports deprecated parameters to wrap().
         // ignore: deprecated_member_use_from_same_package
@@ -233,7 +246,7 @@ class FlutterSentry {
       // If the stack trace has been forgotten or is empty (as Future.timeout
       // often does), fall back to current stack trace, which should give a clue
       // of at least where the exception was caught.
-      parameters.stackTrace ??= StackTrace.current;
+      parameters.stackTrace = StackTrace.current;
     }
 
     var action = captureExceptionAction;

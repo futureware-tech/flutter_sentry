@@ -47,12 +47,12 @@ class MyApp extends StatelessWidget {
                         },
                       );
                     },
-                    child: const Text('Sign in'),
+                    child: const Text('Sign in (initialize User context)'),
                   ),
                   const Divider(),
                   const RaisedButton(
                     onPressed: FlutterSentry.nativeCrash,
-                    child: Text('Cause a native crash'),
+                    child: Text('Cause a native crash (reported on restart)'),
                   ),
                   RaisedButton(
                     onPressed: () => FlutterSentry.instance.captureException(
