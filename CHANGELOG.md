@@ -1,4 +1,15 @@
-## Unreleased
+## 0.6.0
+
+- Set environment tag for native layer.
+- Actually fallback to current stack trace if the one passed to
+  `captureException` is empty.
+- Track user sessions using a unique session ID.
+
+## 0.5.1
+
+- Add meta package to dependencies in `pubspec.yaml`.
+
+## 0.5.0
 
 - Deprecate 'enable' and configure reporting either statically, via
   `captureExceptionAction`, or dynamically on per-exception basis via

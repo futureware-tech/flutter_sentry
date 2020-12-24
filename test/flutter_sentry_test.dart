@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_sentry/flutter_sentry.dart';
 import 'package:flutter_sentry/src/contexts_cache.dart';
+import 'package:flutter_test/flutter_test.dart' as flutter;
 import 'package:mockito/mockito.dart';
 import 'package:package_info/package_info.dart';
 import 'package:sentry/sentry.dart';
@@ -9,6 +11,7 @@ import 'package:test/test.dart';
 void main() {
   group('FlutterSentry', () {
     setUpAll(() {
+      flutter.TestWidgetsFlutterBinding.ensureInitialized();
       packageInfo = PackageInfo();
     });
 
@@ -71,6 +74,8 @@ void main() {
         stackFrameFilter: anyNamed('stackFrameFilter'),
       ));
       verifyNever(globals.debugPrint(argThat(startsWith('ignored\n'))));
+
+      verifyNoMoreInteractions(globals);
     });
 
     test('processes captureExceptionFilter', () async {
@@ -104,6 +109,77 @@ void main() {
       ));
       verifyNever(globals.debugPrint(argThat(contains('unexpected'))));
       verify(globals.debugPrint(argThat(startsWith('filtered\n')))).called(1);
+
+      verifyNoMoreInteractions(globals);
+    });
+
+    test('calls into MethodChannel for native code', () async {
+      const channel = MethodChannel('flutter_sentry');
+      final globals = _MockGlobals();
+      channel.setMockMethodCallHandler(globals.methodChannelCall);
+      when(globals.methodChannelCall(any)).thenAnswer((_) async => true);
+      await FlutterSentry.nativeCrash();
+      expect(
+        verify(globals.methodChannelCall(captureAny)).captured[0].method,
+        'nativeCrash',
+      );
+      verifyNoMoreInteractions(globals);
+    });
+
+    test('passthrough or guess stack trace correctly', () async {
+      final client = _MockSentryClient();
+      FlutterSentry.initializeWithClient(client);
+      final trace = StackTrace.fromString('test_stack_trace');
+
+      await FlutterSentry.instance.captureException(
+        exception: _ErrorWithStacktrace(trace),
+      );
+      expect(
+        verify(client.capture(
+          event: captureAnyNamed('event'),
+          stackFrameFilter: anyNamed('stackFrameFilter'),
+        )).captured[0].stackTrace,
+        trace,
+        reason: 'Should pick stack trace from Error.',
+      );
+
+      await FlutterSentry.instance.captureException(
+        exception: Exception(),
+      );
+      expect(
+        verify(client.capture(
+          event: captureAnyNamed('event'),
+          stackFrameFilter: anyNamed('stackFrameFilter'),
+        )).captured[0].stackTrace.toString(),
+        contains('flutter_sentry_test.dart'),
+        reason: '"null" should fall back to current stack trace.',
+      );
+
+      await FlutterSentry.instance.captureException(
+        exception: Exception(),
+        stackTrace: StackTrace.empty,
+      );
+      expect(
+        verify(client.capture(
+          event: captureAnyNamed('event'),
+          stackFrameFilter: anyNamed('stackFrameFilter'),
+        )).captured[0].stackTrace.toString(),
+        contains('flutter_sentry_test.dart'),
+        reason: 'Empty trace should fall back to current stack trace.',
+      );
+
+      await FlutterSentry.instance.captureException(
+        exception: Exception(),
+        stackTrace: trace,
+      );
+      expect(
+        verify(client.capture(
+          event: captureAnyNamed('event'),
+          stackFrameFilter: anyNamed('stackFrameFilter'),
+        )).captured[0].stackTrace,
+        trace,
+        reason: 'Should take the trace as reported.',
+      );
     });
   });
 }
@@ -112,4 +188,13 @@ class _MockSentryClient extends Mock implements SentryClient {}
 
 class _MockGlobals extends Mock {
   void debugPrint(String arg, {int wrapWidth});
+  Future<dynamic> methodChannelCall(MethodCall call);
+}
+
+@immutable
+class _ErrorWithStacktrace implements Error {
+  const _ErrorWithStacktrace(this.stackTrace);
+
+  @override
+  final StackTrace stackTrace;
 }
