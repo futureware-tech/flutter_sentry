@@ -107,7 +107,7 @@ class FlutterSentryPlugin : FlutterPlugin, MethodCallHandler {
         val ipAddress = call.argument<String>("ipAddress")
 
         Sentry.configureScope {
-            if hasData {
+            if (hasData) {
                 val user = User()
                 user.id = userId
                 user.username = username
