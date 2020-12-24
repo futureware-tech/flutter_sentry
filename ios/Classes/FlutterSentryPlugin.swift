@@ -88,6 +88,8 @@ public class FlutterSentryPlugin: NSObject, FlutterPlugin {
             SentrySDK.crash()
         case "setEnvironment":
             setEnvironment(call, result: result)
+        case "setUser":
+            setUser(call, result: result)
         default:
            result(FlutterMethodNotImplemented)
         }
@@ -104,5 +106,26 @@ public class FlutterSentryPlugin: NSObject, FlutterPlugin {
             scope.setEnvironment(environment)
             result(nil)
         })
+    }
+    
+    func setUser(_ call: FlutterMethodCall,
+                 result: @escaping FlutterResult) {
+        guard let arguments = call.arguments as? [String: Any?],
+              let hasData = arguments["hasData"] as? Bool else {
+                return result(FlutterError(code: "MISSING_PARAMS", message: "Missing parameters", details: nil))
+        }
+        
+        if hasData {
+            let user = User()
+            if let userId = arguments["userId"] as? String { user.userId = userId }
+            if let username = arguments["username"] as? String { user.username = username }
+            if let email = arguments["email"] as? String { user.email = email }
+            if let ipAddress = arguments["ipAddress"] as? String { user.ipAddress = ipAddress }
+            SentrySDK.setUser(user)
+        } else{
+            SentrySDK.setUser(nil)
+        }
+        
+        result(nil)
     }
 }

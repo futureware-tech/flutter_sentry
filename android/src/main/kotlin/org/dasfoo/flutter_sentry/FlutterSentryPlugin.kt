@@ -12,6 +12,7 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.Registrar
 import io.sentry.core.Sentry
+import io.sentry.core.protocol.User
 import java.lang.IllegalStateException
 
 
@@ -75,6 +76,9 @@ class FlutterSentryPlugin : FlutterPlugin, MethodCallHandler {
         } else if (call.method == "setEnvironment") {
             setEnvironment(call, result)
             return
+        } else if (call.method == "setUser") {
+            setUser(call, result)
+            return
         }
 
         result.notImplemented()
@@ -90,6 +94,30 @@ class FlutterSentryPlugin : FlutterPlugin, MethodCallHandler {
 
         Sentry.configureScope {
             it.setTag("environment", environment)
+            result.success(null)
+        }
+    }
+
+    private fun setUser(@NonNull call: MethodCall, @NonNull result: Result) {
+        val hasData = call.argument<Boolean>("hasData") ?:
+            return result.error("MISSING_PARAMS", "Missing 'hasData' parameter", null)
+        val userId = call.argument<String>("userId")
+        val username = call.argument<String>("username")
+        val email = call.argument<String>("email")
+        val ipAddress = call.argument<String>("ipAddress")
+
+        Sentry.configureScope {
+            if hasData {
+                val user = User()
+                user.id = userId
+                user.username = username
+                user.email = email
+                user.ipAddress = ipAddress
+                it.user = user
+            } else {
+                it.user = null
+            }
+
             result.success(null)
         }
     }

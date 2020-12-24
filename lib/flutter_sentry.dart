@@ -91,6 +91,17 @@ class FlutterSentry {
         .invokeMethod<dynamic>('setEnvironment', {'environment': environment});
   }
 
+  /// Update the user information in the native platform
+  static Future<void> setNativePlatformUser(User user) async {
+    await _channel.invokeMethod<dynamic>('setUser', {
+      'hasData': user != null,
+      'userId': user?.id,
+      'username': user?.username,
+      'email': user?.email,
+      'ipAddress': user?.ipAddress,
+    });
+  }
+
   /// A wrapper function for `runApp()` application code. It intercepts few
   /// different error conditions:
   ///
