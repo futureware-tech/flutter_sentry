@@ -15,7 +15,7 @@ Sentry.io error reporting plugin for Flutter, offering tight integration with Fl
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'
-  s.dependency 'Sentry', '~> 5.0'
+  s.dependency 'Sentry', '~> 6.0'
   s.static_framework = true
   s.platform = :ios, '8.0'
 
