@@ -1,3 +1,8 @@
+## Unreleased
+
+- Deprecated custom API to set native layer environment tag and instead set it
+  automatically when environment attribute is changed in Dart.
+
 ## 0.6.0
 
 - Set environment tag for native layer.

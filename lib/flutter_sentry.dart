@@ -84,7 +84,9 @@ class FlutterSentry {
       _cachedFirebaseTestLab ??= Platform.isAndroid &&
           await _channel.invokeMethod<bool>('getFirebaseTestLab');
 
-  /// Update scope with environment tag
+  /// Update scope with environment tag.
+  @Deprecated('Set environment through environmentAttributes in the call to '
+      'initialize() instead')
   static Future<void> setNativePlatformEnvironment(String environment) async {
     assert(environment != null, "Missing 'environment' parameter");
     await _channel
@@ -152,7 +154,6 @@ class FlutterSentry {
             },
           ),
         );
-        setNativePlatformEnvironment(environment);
 
         // Supports deprecated parameters to wrap().
         // ignore: deprecated_member_use_from_same_package
@@ -331,6 +332,11 @@ class FlutterSentry {
   static void initializeWithClient(SentryClient sentryClient) {
     _ensureNotInitialized();
     _instance = FlutterSentry._(sentryClient);
+    if (sentryClient.environmentAttributes?.environment != null) {
+      _channel.invokeMethod<dynamic>('setEnvironment', {
+        'environment': sentryClient.environmentAttributes.environment,
+      });
+    }
     contexts_cache.prefetch();
   }
 
