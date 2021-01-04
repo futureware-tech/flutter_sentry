@@ -49,6 +49,12 @@ class MyApp extends StatelessWidget {
                     },
                     child: const Text('Sign in (initialize User context)'),
                   ),
+                  RaisedButton(
+                    onPressed: () {
+                      FlutterSentry.instance.userContext = null;
+                    },
+                    child: const Text('Sign out (clear User context)'),
+                  ),
                   const Divider(),
                   const RaisedButton(
                     onPressed: FlutterSentry.nativeCrash,

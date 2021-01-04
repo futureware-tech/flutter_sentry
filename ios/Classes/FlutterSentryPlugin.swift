@@ -88,8 +88,12 @@ public class FlutterSentryPlugin: NSObject, FlutterPlugin {
             SentrySDK.crash()
         case "setEnvironment":
             setEnvironment(call, result: result)
+        case "setUserContext":
+            setUserContext(call, result: result)
+        case "removeUserContext":
+            removeUserContext(call, result: result)
         default:
-           result(FlutterMethodNotImplemented)
+            result(FlutterMethodNotImplemented)
         }
     }
     
@@ -102,6 +106,42 @@ public class FlutterSentryPlugin: NSObject, FlutterPlugin {
 
         SentrySDK.configureScope({ (scope: Scope) in
             scope.setEnvironment(environment)
+            result(nil)
+        })
+    }
+    
+    func setUserContext(_ call: FlutterMethodCall,
+                        result: @escaping FlutterResult) {
+        guard let arguments = call.arguments as? [String: Any?] else {
+            return result(FlutterError(code: "MISSING_PARAMS",
+                                       message: "Missing named arguments",
+                                       details: nil))
+        }
+        
+        let user = User()
+        user.email = arguments["email"] as? String
+        user.userId = arguments["id"] as? String ?? ""
+        user.ipAddress = arguments["ipAddress"] as? String
+        user.username = arguments["username"] as? String
+        if let extras = arguments["extras"] as? [String: String] {
+            // Sentry Android reports these as "other"; Sentry Dart reports as "extras".
+            // iOS integration seems most flexible, and we make it follow Dart standard.
+            user.data = ["extras": extras]
+        }
+        
+        SentrySDK.configureScope({ (scope: Scope) in
+            scope.setUser(user)
+            result(nil)
+        })
+    }
+    
+    func removeUserContext(_ call: FlutterMethodCall,
+                           result: @escaping FlutterResult) {
+        SentrySDK.configureScope({ (scope: Scope) in
+            // Regardless of how we massage the user, Sentry will always determine IP
+            // address when the event is sent from iOS, unless storing IP address is
+            // turned off in Sentry project configuration on the web.
+            scope.setUser(nil)
             result(nil)
         })
     }
