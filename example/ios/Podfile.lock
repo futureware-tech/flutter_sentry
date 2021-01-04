@@ -7,9 +7,9 @@ PODS:
     - Sentry (~> 5.0)
   - package_info (0.0.1):
     - Flutter
-  - Sentry (5.0.2):
-    - Sentry/Core (= 5.0.2)
-  - Sentry/Core (5.0.2)
+  - Sentry (5.2.2):
+    - Sentry/Core (= 5.2.2)
+  - Sentry/Core (5.2.2)
 
 DEPENDENCIES:
   - device_info (from `.symlinks/plugins/device_info/ios`)
@@ -36,8 +36,8 @@ SPEC CHECKSUMS:
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
   flutter_sentry: e7e66f0717b5fba24f96891e879562bdd8985d36
   package_info: 873975fc26034f0b863a300ad47e7f1ac6c7ec62
-  Sentry: 5cec6146fff65c11080f78e8128582727c076e12
+  Sentry: 8fa58a051237554f22507fb483b9a1de0171a2dc
 
 PODFILE CHECKSUM: 1b66dae606f75376c5f2135a8290850eeb09ae83
 
-COCOAPODS: 1.9.3
+COCOAPODS: 1.10.0
