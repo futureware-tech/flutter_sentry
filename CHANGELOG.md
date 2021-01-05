@@ -1,4 +1,4 @@
-## Unreleased
+## 0.7.0
 
 - Deprecate custom API to set native layer environment tag and instead set it
   automatically when environment attribute is changed in Dart.
