@@ -140,7 +140,8 @@ Learn more how to set it up for
 [iOS](https://docs.sentry.io/platforms/cocoa/#release-health). This feature does
 not yet have any Flutter specific integrations.
 
-**NOTE**: Session tracking is disabled by default and the timeout for a session defaults to 30000 milliseconds (30 seconds).
+**NOTE**: Session tracking is disabled by default and the timeout for a session
+defaults to 30000 milliseconds (30 seconds).
 
 - iOS: in `ios/Runner/Info.plist`:
 
