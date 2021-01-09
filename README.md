@@ -167,6 +167,34 @@ defaults to 30000 milliseconds (30 seconds).
         android:value="60000" />
   ```
 
+## Reporting custom events
+
+`FlutterSentry.wrap()` already reports `debugPrint` and `print` calls to Sentry
+via breadcrumbs.
+
+If you'd like to report a non-fatal exception manually, you can use
+`FlutterSentry.instance.captureException()` method, for example:
+
+```dart
+FlutterSentry.wrap(() {
+  // This will report a non-fatal event to Sentry, including current stack
+  // trace, device and application info.
+  FlutterSentry.instance.captureException(
+    exception: Exception('Things went wrong'),
+  );
+
+  // This will report a non-fatal event to Sentry, including current stack
+  // trace, device and application info.
+  FlutterSentry.instance.captureException(
+      exception: Exception('Things went wrong'),
+      extra: {
+          // Free form values to attach to the event.
+          'application state': 'unstable',
+      },
+  );
+});
+```
+
 ## Why do I have to specify DSN in multiple places?
 
 You might be wondering why a DSN value can't be specified in a single place and
