@@ -2,12 +2,26 @@
 [![flutter build](https://github.com/futureware-tech/flutter_sentry/workflows/flutter/badge.svg?branch=master&event=push)](https://github.com/futureware-tech/flutter_sentry/actions?query=workflow%3Aflutter+branch%3Amaster)
 [![code coverage](https://codecov.io/gh/futureware-tech/flutter_sentry/branch/master/graph/badge.svg)](https://codecov.io/gh/futureware-tech/flutter_sentry)
 
-**NOTE**: _While [`sentry`](https://pub.dev/packages/sentry) package provides a
-low-level functionality to report exceptions from Dart/Flutter code,
-`flutter_sentry` plugin (which also uses `sentry` package behind the scenes!)
-aims at full integration with Flutter ecosystem, automatically including Flutter
-application details in reports and catching crashes in native code, including
-other Flutter plugins and Flutter itself_.
+Note on package ambiguity:
+
+- [`sentry`](https://pub.dev/packages/sentry) package is a pure Dart
+  implementation of Sentry.io client, allowing users to customize and extend
+  their reports in Dart, regardless of framework choice;
+
+- [`sentry_flutter`](https://pub.dev/packages/sentry_flutter) is a new package
+  offered by Sentry, which supports integration with native platforms (such as
+  iOS, Android and Web) where Flutter applications can run. It is getting
+  feature parity (and in some parts, superiority) to this package;
+
+- [`flutter_sentry`](https://pub.dev/packages/flutter_sentry) (the package you
+  are looking at) is a stop gap solution while Sentry team has not offered an
+  implementation that would support Flutter ecosystem (such as automatically
+  reporting device configuration in Dart and tracking debug logs and navigation
+  events). It still has some features that `sentry_flutter` does not yet offer,
+  but it may become obsolete in the future if the Sentry team decides to
+  implement missing features.
+
+  `flutter_sentry` uses `sentry` package to communicate with Sentry.io.
 
 ## Setup
 
