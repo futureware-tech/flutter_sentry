@@ -61,7 +61,45 @@ class FlutterSentry {
 
   /// Assignable user-related properties which will be attached to every report
   /// created via [captureException] (this includes events reported by [wrap]).
-  User userContext;
+  ///
+  /// Note that [User.extras] values will be remapped to String when sent to
+  /// native platform, and on Android will appear as "other" rather than
+  /// "extras".
+  ///
+  /// Settings [User.ipAddress] to a special value `"{{auto}}"` will request
+  /// Sentry server to infer the IP address from the reporting HTTP connection.
+  ///
+  /// On native platforms, [User.id] is prefilled at startup with certain unique
+  /// user identifier, such as `Settings.Secure.ANDROID_ID` on Android and
+  /// `installationId` on iOS (see corresponding Sentry documentation). Setting
+  /// [userContext] here clears this identifier.
+  ///
+  /// NB: on iOS, user IP address is always present unless storing IP address is
+  /// turned off in the Sentry project settings on the web.
+  User get userContext => _userContext;
+  set userContext(User user) {
+    _userContext = user;
+
+    // We don't have to await these platform methods because they only affect
+    // the platform code state, which can be changed exclusively asynchronously
+    // and thus will be properly queued.
+    if (user == null) {
+      _channel.invokeMethod<void>('removeUserContext');
+    } else {
+      _channel.invokeMethod<void>('setUserContext', {
+        'email': user.email,
+        'id': user.id,
+        'ipAddress': user.ipAddress,
+        'username': user.username,
+        // TODO(dotdoom): run StandardMessageCodec on values (recursively?)
+        //                and convert to String only when the codec fails.
+        'extras': user.extras?.map<String, String>(
+            (key, dynamic value) => MapEntry(key, value?.toString())),
+      });
+    }
+  }
+
+  User _userContext;
 
   /// Breadcrumbs collected so far for reporting in the next event.
   // This type is inferred: https://github.com/dart-lang/linter/issues/1319.
@@ -84,7 +122,9 @@ class FlutterSentry {
       _cachedFirebaseTestLab ??= Platform.isAndroid &&
           await _channel.invokeMethod<bool>('getFirebaseTestLab');
 
-  /// Update scope with environment tag
+  /// Update scope with environment tag.
+  @Deprecated('Set environment through environmentAttributes in the call to '
+      'initialize() instead')
   static Future<void> setNativePlatformEnvironment(String environment) async {
     assert(environment != null, "Missing 'environment' parameter");
     await _channel
@@ -152,7 +192,6 @@ class FlutterSentry {
             },
           ),
         );
-        setNativePlatformEnvironment(environment);
 
         // Supports deprecated parameters to wrap().
         // ignore: deprecated_member_use_from_same_package
@@ -331,6 +370,11 @@ class FlutterSentry {
   static void initializeWithClient(SentryClient sentryClient) {
     _ensureNotInitialized();
     _instance = FlutterSentry._(sentryClient);
+    if (sentryClient.environmentAttributes?.environment != null) {
+      _channel.invokeMethod<dynamic>('setEnvironment', {
+        'environment': sentryClient.environmentAttributes.environment,
+      });
+    }
     contexts_cache.prefetch();
   }
 

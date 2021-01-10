@@ -11,8 +11,8 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.Registrar
-import io.sentry.core.Sentry
-import java.lang.IllegalStateException
+import io.sentry.Sentry
+import io.sentry.protocol.User
 
 
 /** FlutterSentryPlugin */
@@ -75,6 +75,10 @@ class FlutterSentryPlugin : FlutterPlugin, MethodCallHandler {
         } else if (call.method == "setEnvironment") {
             setEnvironment(call, result)
             return
+        } else if (call.method == "setUserContext") {
+            setUserContext(call, result)
+        } else if (call.method == "removeUserContext") {
+            removeUserContext(call, result)
         }
 
         result.notImplemented()
@@ -92,5 +96,36 @@ class FlutterSentryPlugin : FlutterPlugin, MethodCallHandler {
             it.setTag("environment", environment)
             result.success(null)
         }
+    }
+
+    private fun setUserContext(@NonNull call: MethodCall, @NonNull result: Result) {
+        val user = User()
+
+        user.email = call.argument<String>("email")
+        // Not setting user ID will make the integration fall back to Settings.Secure.ANDROID_ID,
+        // which would be against iOS behavior where not setting user ID is impossible (the
+        // field is non-nullable), so we intentionally set to an empty string.
+        user.id = call.argument<String>("id") ?: ""
+        user.ipAddress = call.argument<String>("ipAddress")
+        user.username = call.argument<String>("username")
+        // Unfortunately there's a mismatch in the "extras" name in Sentry's native Dart API and
+        // Android API.
+        user.others = call.argument<Map<String, String>>("extras")
+
+        Sentry.configureScope {
+            it.user = user;
+        }
+        result.success(null)
+    }
+
+    private fun removeUserContext(@NonNull call: MethodCall, @NonNull result: Result) {
+        Sentry.configureScope {
+            val user = User()
+            // See https://docs.sentry.io/platforms/android/enriching-events/identify-user/.
+            // Sentry will fallback to ANDROID_ID if we don't provide user ID.
+            user.id = ""
+            it.user = user
+        }
+        result.success(null)
     }
 }

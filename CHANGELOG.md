@@ -1,3 +1,10 @@
+## 0.7.0
+
+- Deprecate custom API to set native layer environment tag and instead set it
+  automatically when environment attribute is changed in Dart.
+- Update Sentry library version in native layers for Android and iOS.
+- Carry User changes into native layer.
+
 ## 0.6.0
 
 - Set environment tag for native layer.
