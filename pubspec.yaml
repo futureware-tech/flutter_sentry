@@ -11,6 +11,9 @@ dependencies:
   device_info: ^1.0.0
   flutter:
     sdk: flutter
+  # https://pub.dev/packages/http/changelog 0.13.0+ is a breaking API change
+  # which our dependency, sentry, is incompatible with.
+  http: ^0.12.2
   meta: ^1.2.3
   # package_info is migrating to 1.0.0 and asks us to use this constraint.
   package_info: ">=0.4.0 <2.0.0"

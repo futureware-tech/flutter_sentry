@@ -1,3 +1,8 @@
+## Unreleased
+
+- Restrict `http` package version to `^0.12.2` to work around breaking API
+  change.
+
 ## 0.7.0
 
 - Deprecate custom API to set native layer environment tag and instead set it

@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
-                  RaisedButton(
+                  ElevatedButton(
                     onPressed: () {
                       FlutterSentry.instance.userContext = const User(
                         id: '0123456789',
@@ -49,18 +49,18 @@ class MyApp extends StatelessWidget {
                     },
                     child: const Text('Sign in (initialize User context)'),
                   ),
-                  RaisedButton(
+                  ElevatedButton(
                     onPressed: () {
                       FlutterSentry.instance.userContext = null;
                     },
                     child: const Text('Sign out (clear User context)'),
                   ),
                   const Divider(),
-                  const RaisedButton(
+                  const ElevatedButton(
                     onPressed: FlutterSentry.nativeCrash,
                     child: Text('Cause a native crash (reported on restart)'),
                   ),
-                  RaisedButton(
+                  ElevatedButton(
                     onPressed: () => FlutterSentry.instance.captureException(
                       exception: Exception('Event'),
                       extra: <String, dynamic>{
@@ -75,14 +75,14 @@ class MyApp extends StatelessWidget {
                       child: Text('The following works in release mode only:'),
                     ),
                   ),
-                  RaisedButton(
+                  ElevatedButton(
                     onPressed: () {
                       debugPrint('Throwing an uncaught exception');
                       throw Exception('Uncaught exception');
                     },
                     child: const Text('Throw uncaught exception'),
                   ),
-                  RaisedButton(
+                  ElevatedButton(
                     onPressed: () {
                       // Will fail because Scaffold is below current context:
                       // https://link.medium.com/TyUYuWoer5.
