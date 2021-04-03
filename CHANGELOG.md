@@ -1,7 +1,12 @@
-## Unreleased
+## 0.8.0
 
-- Restrict `http` package version to `^0.12.2` to work around breaking API
-  change.
+- Update `sentry` package to `4.0.6`, the latest version compatible with stable
+  Flutter.
+- Drop stack frame filter (not compatible with `sentry` anymore).
+- Fix value type for device aspect ratio now that `sentry` supports a float.
+- Change initialization to only accept environment as a String (previous
+  structure is not compatible with `sentry` anymore).
+- Custom release names are no longer supported.
 
 ## 0.7.0
 
