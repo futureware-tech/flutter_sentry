@@ -71,7 +71,7 @@ sentry.Contexts currentContexts() => sentry.Contexts(
       device: _deviceContext(),
       runtimes: [
         if (_firebaseTestLab == true)
-          const sentry.Runtime(
+          const sentry.SentryRuntime(
             key: 'Firebase Test Lab',
             name: 'Firebase Test Lab or Pre-launch report',
           ),
@@ -107,9 +107,7 @@ sentry.Device _deviceContext() {
     orientation: window.physicalSize.width > window.physicalSize.height
         ? sentry.Orientation.landscape
         : sentry.Orientation.portrait,
-    // Have to convert to String for now:
-    // https://github.com/flutter/flutter/issues/53521.
-    screenDensity: window.devicePixelRatio.toString(),
+    screenDensity: window.devicePixelRatio,
     timezone: DateTime.now().timeZoneName,
     // The values below are taken from plugins.
     name: name,

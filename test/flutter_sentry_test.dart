@@ -17,25 +17,6 @@ void main() {
 
     tearDown(FlutterSentry.deinitialize);
 
-    test('defaultStackFrameFilter marks "flutter" frames as not in_app', () {
-      expect(
-        FlutterSentry.defaultStackFrameFilter([
-          <String, dynamic>{'abs_path': 'package:tedious_monsters/alarm.dart'},
-          <String, dynamic>{'abs_path': 'package:flutter_helper/index.dart'},
-          <String, dynamic>{'abs_path': 'package:flutter/flutter.dart'},
-          <String, dynamic>{'abs_path': 'package:flutter/init.dart'},
-          <String, dynamic>{'abs_path': 'main.dart'},
-        ]),
-        [
-          {'abs_path': 'package:tedious_monsters/alarm.dart'},
-          {'abs_path': 'package:flutter_helper/index.dart'},
-          {'in_app': false, 'abs_path': 'package:flutter/flutter.dart'},
-          {'in_app': false, 'abs_path': 'package:flutter/init.dart'},
-          {'abs_path': 'main.dart'},
-        ],
-      );
-    });
-
     test('does not allow to initialize more than once', () {
       FlutterSentry.initializeWithClient(_MockSentryClient());
       expect(
@@ -51,27 +32,27 @@ void main() {
       FlutterSentry.initializeWithClient(client);
 
       await FlutterSentry.instance.captureException(exception: 'log&report');
-      verify(client.capture(
-        event: anyNamed('event'),
-        stackFrameFilter: anyNamed('stackFrameFilter'),
+      verify(client.captureEvent(
+        any,
+        stackTrace: anyNamed('stackTrace'),
       )).called(1);
       verify(globals.debugPrint(argThat(startsWith('log&report\n')))).called(1);
 
       FlutterSentry.instance.captureExceptionAction =
           CaptureExceptionAction.logOnly;
       await FlutterSentry.instance.captureException(exception: 'logonly');
-      verifyNever(client.capture(
-        event: anyNamed('event'),
-        stackFrameFilter: anyNamed('stackFrameFilter'),
+      verifyNever(client.captureEvent(
+        any,
+        stackTrace: anyNamed('stackTrace'),
       ));
       verify(globals.debugPrint(argThat(startsWith('logonly\n')))).called(1);
 
       FlutterSentry.instance.captureExceptionAction =
           CaptureExceptionAction.ignore;
       await FlutterSentry.instance.captureException(exception: 'ignored');
-      verifyNever(client.capture(
-        event: anyNamed('event'),
-        stackFrameFilter: anyNamed('stackFrameFilter'),
+      verifyNever(client.captureEvent(
+        any,
+        stackTrace: anyNamed('stackTrace'),
       ));
       verifyNever(globals.debugPrint(argThat(startsWith('ignored\n'))));
 
@@ -90,9 +71,9 @@ void main() {
       };
       await FlutterSentry.instance.captureException(exception: 'error');
       expect(
-        verify(client.capture(
-          event: captureAnyNamed('event'),
-          stackFrameFilter: anyNamed('stackFrameFilter'),
+        verify(client.captureEvent(
+          captureAny,
+          stackTrace: anyNamed('stackTrace'),
         )).captured[0].extra,
         containsPair('passed', true),
       );
@@ -103,9 +84,9 @@ void main() {
         return CaptureExceptionAction.logOnly;
       };
       await FlutterSentry.instance.captureException(exception: 'unexpected');
-      verifyNever(client.capture(
-        event: anyNamed('event'),
-        stackFrameFilter: anyNamed('stackFrameFilter'),
+      verifyNever(client.captureEvent(
+        any,
+        stackTrace: anyNamed('stackTrace'),
       ));
       verifyNever(globals.debugPrint(argThat(contains('unexpected'))));
       verify(globals.debugPrint(argThat(startsWith('filtered\n')))).called(1);
@@ -135,10 +116,10 @@ void main() {
         exception: _ErrorWithStacktrace(trace),
       );
       expect(
-        verify(client.capture(
-          event: captureAnyNamed('event'),
-          stackFrameFilter: anyNamed('stackFrameFilter'),
-        )).captured[0].stackTrace,
+        verify(client.captureEvent(
+          any,
+          stackTrace: captureAnyNamed('stackTrace'),
+        )).captured[0],
         trace,
         reason: 'Should pick stack trace from Error.',
       );
@@ -147,10 +128,10 @@ void main() {
         exception: Exception(),
       );
       expect(
-        verify(client.capture(
-          event: captureAnyNamed('event'),
-          stackFrameFilter: anyNamed('stackFrameFilter'),
-        )).captured[0].stackTrace.toString(),
+        verify(client.captureEvent(
+          any,
+          stackTrace: captureAnyNamed('stackTrace'),
+        )).captured[0].toString(),
         contains('flutter_sentry_test.dart'),
         reason: '"null" should fall back to current stack trace.',
       );
@@ -160,10 +141,10 @@ void main() {
         stackTrace: StackTrace.empty,
       );
       expect(
-        verify(client.capture(
-          event: captureAnyNamed('event'),
-          stackFrameFilter: anyNamed('stackFrameFilter'),
-        )).captured[0].stackTrace.toString(),
+        verify(client.captureEvent(
+          any,
+          stackTrace: captureAnyNamed('stackTrace'),
+        )).captured[0].toString(),
         contains('flutter_sentry_test.dart'),
         reason: 'Empty trace should fall back to current stack trace.',
       );
@@ -173,10 +154,10 @@ void main() {
         stackTrace: trace,
       );
       expect(
-        verify(client.capture(
-          event: captureAnyNamed('event'),
-          stackFrameFilter: anyNamed('stackFrameFilter'),
-        )).captured[0].stackTrace,
+        verify(client.captureEvent(
+          any,
+          stackTrace: captureAnyNamed('stackTrace'),
+        )).captured[0],
         trace,
         reason: 'Should take the trace as reported.',
       );

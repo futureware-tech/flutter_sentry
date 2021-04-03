@@ -17,8 +17,8 @@ dependencies:
   meta: ^1.2.3
   # package_info is migrating to 1.0.0 and asks us to use this constraint.
   package_info: ">=0.4.0 <2.0.0"
-  sentry: ^3.0.1
-  uuid: ^2.2.2
+  sentry: ^4.0.0
+  uuid: ">=2.0.0 <4.0.0"
 
 dev_dependencies:
   flutter_test:

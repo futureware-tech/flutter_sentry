@@ -79,8 +79,8 @@ void main() {
       FlutterSentryNavigatorObserver(
         breadcrumbs: t,
         dataExtractor: (routeSettings) => Breadcrumb(
-          '-> ${routeSettings.name}',
-          historicalTimestamp,
+          message: '-> ${routeSettings.name}',
+          timestamp: historicalTimestamp,
         ),
       ).didPush(
         route('/home'),
