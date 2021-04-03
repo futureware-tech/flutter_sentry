@@ -33,10 +33,10 @@ class MyApp extends StatelessWidget {
                 children: <Widget>[
                   ElevatedButton(
                     onPressed: () {
-                      FlutterSentry.instance.userContext = const User(
+                      FlutterSentry.instance.userContext = User(
                         id: '0123456789',
                         email: 'test@example.com',
-                        extras: <String, dynamic>{
+                        extras: const <String, dynamic>{
                           // This can be anything you like.
                           'purchased': true,
                           'signInMethod': 'Anonymous',

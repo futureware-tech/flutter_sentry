@@ -13,16 +13,16 @@ typedef RouteDataExtractor = Breadcrumb Function(RouteSettings);
 Breadcrumb defaultRouteDataExtractor(RouteSettings route) {
   final arguments = route.arguments;
   return Breadcrumb(
-    route.name,
-    DateTime.now().toUtc(),
+    message: route.name,
+    timestamp: DateTime.now().toUtc(),
     category: 'navigation',
     data: arguments is Map<String, dynamic>
-        ? arguments.map(
+        ? arguments.map<String, String>(
             (key, dynamic value) => MapEntry(key, value.toString()),
           )
         : arguments == null
             ? null
-            : {
+            : <String, String>{
                 'arguments': arguments.toString(),
               },
   );

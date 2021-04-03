@@ -24,6 +24,7 @@ class FlutterSentry {
   static bool _cachedFirebaseTestLab;
 
   final SentryClient _sentry;
+  final _sessionId = Uuid().v1();
 
   /// Enable reporting to Sentry.io from Dart. DEPRECATED. This can be used to
   /// disable reporting, in debug environment for example. Does not disable
@@ -157,7 +158,6 @@ class FlutterSentry {
     return runZoned<T>(
       () {
         WidgetsFlutterBinding.ensureInitialized();
-        final window = WidgetsBinding.instance.window;
 
         const environment = String.fromEnvironment(
           'sentry.environment',
@@ -174,23 +174,7 @@ class FlutterSentry {
         // zone as the app: https://github.com/flutter/flutter/issues/42682.
         initialize(
           dsn: dsn,
-          environmentAttributes: Event(
-            environment: environment,
-            extra: <String, dynamic>{
-              // This should really go into one of Contexts, but there's just no
-              // place for it there!
-              'locale': window.locale.toString(),
-            },
-            // The difference between "extra" and "tags" is that tags are
-            // visible at the top of the event (as a chip) and most important,
-            // tags are searchable (i.e. can filter events on a tag value).
-            tags: {
-              // Session ID allows tracking errors happening throughout entire
-              // session, which is especially relevant when user tracking is
-              // enabled but an event happens before sign in is initialized.
-              'session_id': Uuid().v1(),
-            },
-          ),
+          environment: environment,
         );
 
         // Supports deprecated parameters to wrap().
@@ -242,8 +226,8 @@ class FlutterSentry {
         try {
           parent.print(self, line);
           instance.breadcrumbs.add(Breadcrumb(
-            line,
-            DateTime.now().toUtc(),
+            message: line,
+            timestamp: DateTime.now().toUtc(),
             category: 'print',
           ));
         } finally {
@@ -266,7 +250,7 @@ class FlutterSentry {
 
   /// Reports the [exception] and optionally its [stackTrace] to Sentry.io. It
   /// also reports device info and [breadcrumbs].
-  Future<SentryResponse> captureException({
+  Future<SentryId> captureException({
     @required final dynamic exception,
     final dynamic stackTrace,
     final Map<String, dynamic> extra,
@@ -301,36 +285,32 @@ class FlutterSentry {
       return Future.value();
     }
 
-    final event = Event(
-      exception: parameters.exception,
-      stackTrace: parameters.stackTrace,
-      release: _sentry.environmentAttributes?.release ??
-          contexts_cache.defaultReleaseString(),
+    final window = WidgetsBinding.instance.window;
+    final event = SentryEvent(
+      throwable: parameters.exception,
+      release: contexts_cache.defaultReleaseString(),
       breadcrumbs: breadcrumbs.breadcrumbs.toList(),
-      userContext: userContext,
+      user: userContext,
       contexts: contexts_cache.currentContexts(),
       extra: parameters.extra,
+      // The difference between "extra" and "tags" is that tags are
+      // visible at the top of the event (as a chip) and most important,
+      // tags are searchable (i.e. can filter events on a tag value).
+      tags: {
+        // Session ID allows tracking errors happening throughout entire
+        // session, which is especially relevant when user tracking is
+        // enabled but an event happens before sign in is initialized.
+        'session_id': _sessionId,
+        // This should really go into one of Contexts, but there's just no
+        // place for it there!
+        'locale': window.locale.toString(),
+      },
     );
-    return _sentry.capture(event: event, stackFrameFilter: stackFrameFilter);
+    return _sentry.captureEvent(
+      event,
+      stackTrace: parameters.stackTrace,
+    );
   }
-
-  /// Filter for stack trace frames, applied after `Frame` objects are converted
-  /// to JSON representation but before they are sent to Sentry. See
-  /// [SentryClient.capture] for more information.
-  List<Map<String, dynamic>> Function(List<Map<String, dynamic>>)
-      stackFrameFilter = defaultStackFrameFilter;
-
-  /// Default filtering for Sentry JSON stack frames with Flutter-oriented
-  /// implementation, such as marking Flutter part of stacktrace as framework
-  /// stack trace to unclutter Sentry.io interface.
-  static List<Map<String, dynamic>> defaultStackFrameFilter(
-          List<Map<String, dynamic>> stack) =>
-      stack
-          .map<Map<String, dynamic>>((frame) =>
-              frame['abs_path'].toString().startsWith('package:flutter/')
-                  ? (frame..['in_app'] = false)
-                  : frame)
-          .toList();
 
   /// Return the configured instance of [FlutterSentry] after it has been
   /// initialized with [initialize] method, or `null` if the instance has not
@@ -350,19 +330,22 @@ class FlutterSentry {
   /// instance available via [instance] property. It is an [Error] to call this
   /// method more than once during the application lifecycle.
   ///
-  /// [environmentAttributes] is optional and contains [Event] attributes that
-  /// are automatically mixed into all events captured through this client.
-  /// This event should contain static values that do not change from
-  /// event to event, for example, app environment (debug, production, profile),
-  /// the version of Dart/Flutter SDK, etc.
+  /// [environment] is optional and contains environment name to set across all
+  /// platforms.
   ///
   /// flutter_driver users: make sure to call `enableFlutterDriverExtension()`
   /// before `initialize()`.
-  static void initialize({@required String dsn, Event environmentAttributes}) {
+  static void initialize({
+    @required String dsn,
+    String environment,
+  }) {
     _ensureNotInitialized();
-    initializeWithClient(
-      SentryClient(dsn: dsn, environmentAttributes: environmentAttributes),
-    );
+    initializeWithClient(SentryClient(SentryOptions(dsn: dsn)));
+    if (environment != null) {
+      _channel.invokeMethod<dynamic>('setEnvironment', {
+        'environment': environment,
+      });
+    }
   }
 
   /// Initialize [FlutterSentry] with an existing and configured [SentryClient].
@@ -370,11 +353,6 @@ class FlutterSentry {
   static void initializeWithClient(SentryClient sentryClient) {
     _ensureNotInitialized();
     _instance = FlutterSentry._(sentryClient);
-    if (sentryClient.environmentAttributes?.environment != null) {
-      _channel.invokeMethod<dynamic>('setEnvironment', {
-        'environment': sentryClient.environmentAttributes.environment,
-      });
-    }
     contexts_cache.prefetch();
   }
 
