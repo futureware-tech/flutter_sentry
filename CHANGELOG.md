@@ -1,4 +1,4 @@
-## Unreleased
+## 0.8.1
 
 - Fix "Reply already submitted" error when setting a user or environment on
   Android.
