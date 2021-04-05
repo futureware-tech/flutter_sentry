@@ -1,3 +1,7 @@
+## Unreleased
+
+- Fix NPE in Sentry Android unable to handle unspecified `others` parameter.
+
 ## 0.8.1
 
 - Fix "Reply already submitted" error when setting a user or environment on

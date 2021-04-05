@@ -95,7 +95,8 @@ class FlutterSentry {
         // TODO(dotdoom): run StandardMessageCodec on values (recursively?)
         //                and convert to String only when the codec fails.
         'extras': user.extras?.map<String, String>(
-            (key, dynamic value) => MapEntry(key, value?.toString())),
+                (key, dynamic value) => MapEntry(key, value?.toString())) ??
+            {},
       });
     }
   }
