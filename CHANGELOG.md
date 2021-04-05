@@ -1,3 +1,8 @@
+## Unreleased
+
+- Fix "Reply already submitted" error when setting a user or environment on
+  Android.
+
 ## 0.8.0
 
 - Update `sentry` package to `4.0.6`, the latest version compatible with stable

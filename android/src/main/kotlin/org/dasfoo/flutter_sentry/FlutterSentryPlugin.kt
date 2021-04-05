@@ -71,17 +71,15 @@ class FlutterSentryPlugin : FlutterPlugin, MethodCallHandler {
             throw exception;
         } else if (call.method == "getFirebaseTestLab") {
             result.success(firebaseTestLab)
-            return
         } else if (call.method == "setEnvironment") {
             setEnvironment(call, result)
-            return
         } else if (call.method == "setUserContext") {
             setUserContext(call, result)
         } else if (call.method == "removeUserContext") {
             removeUserContext(call, result)
+        } else {
+            result.notImplemented()
         }
-
-        result.notImplemented()
     }
 
     override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
