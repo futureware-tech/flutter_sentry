@@ -1,6 +1,7 @@
 ## Unreleased
 
 - Fix NPE in Sentry Android unable to handle unspecified `others` parameter.
+- Update Gradle version on Android to the one supported by Android Studio.
 
 ## 0.8.1
 
