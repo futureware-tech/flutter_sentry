@@ -5,8 +5,10 @@ on:
 
 jobs:
   update-overlays:
-    # Do not run on forks.
-    if: startsWith(github.repository, 'futureware-tech/')
+    # Do not run on forks or the template repo itself.
+    if: >
+      startsWith(github.repository, 'futureware-tech/') &&
+      (github.repository != 'futureware-tech/template')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
