@@ -60,15 +60,15 @@ class FlutterSentryPlugin : FlutterPlugin, MethodCallHandler {
 
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
         if (call.method == "nativeCrash") {
-            val exception = IllegalStateException("Caused by FlutterSentry.nativeCrash");
-            val mainThread = Looper.getMainLooper().thread;
-            mainThread.uncaughtExceptionHandler.uncaughtException(mainThread, exception);
+            val exception = IllegalStateException("Caused by FlutterSentry.nativeCrash")
+            val mainThread = Looper.getMainLooper().thread
+            mainThread.uncaughtExceptionHandler.uncaughtException(mainThread, exception)
             // Let the thread crash before reporting a failed crash attempt.
             mainThread.join(1000)
 
             // Return an error in case something goes wrong and we get past the crash.
             result.error("FAILED_PRECONDITION", "Failed to cause a native crash.", null)
-            throw exception;
+            throw exception
         } else if (call.method == "getFirebaseTestLab") {
             result.success(firebaseTestLab)
         } else if (call.method == "setEnvironment") {
@@ -111,7 +111,7 @@ class FlutterSentryPlugin : FlutterPlugin, MethodCallHandler {
         user.others = call.argument<Map<String, String>>("extras")
 
         Sentry.configureScope {
-            it.user = user;
+            it.user = user
         }
         result.success(null)
     }
