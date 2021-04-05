@@ -2,7 +2,7 @@ name: flutter_sentry
 description: >
   Sentry.io error reporting plugin for Flutter, offering tight integration with
   Flutter and native code.
-version: 0.8.1
+version: 0.8.2
 homepage: https://github.com/dasfoo/flutter_sentry
 
 environment:

@@ -109,6 +109,7 @@ class FlutterSentryPlugin : FlutterPlugin, MethodCallHandler {
         // Unfortunately there's a mismatch in the "extras" name in Sentry's native Dart API and
         // Android API.
         user.others = call.argument<Map<String, String>>("extras")
+                ?: emptyMap<String, String>()
 
         Sentry.configureScope {
             it.user = user

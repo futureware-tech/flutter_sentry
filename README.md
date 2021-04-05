@@ -29,7 +29,7 @@ Note on package ambiguity:
 
    ```yaml
    dependencies:
-     flutter_sentry: ^0.8.1
+     flutter_sentry: ^0.8.2
      # To use classes provided by sentry package (e.g. User).
      sentry: any
    ```

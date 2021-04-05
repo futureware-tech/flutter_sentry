@@ -1,3 +1,8 @@
+## 0.8.2
+
+- Fix NPE in Sentry Android unable to handle unspecified `others` parameter.
+- Update Gradle version on Android to the one supported by Android Studio.
+
 ## 0.8.1
 
 - Fix "Reply already submitted" error when setting a user or environment on
