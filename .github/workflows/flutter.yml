@@ -11,6 +11,8 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
+    outputs:
+      check_os: ${{ steps.determine_check_os.outputs.os_list }}
     steps:
       - uses: actions/checkout@v2
       - uses: subosito/flutter-action@v1
@@ -28,25 +30,38 @@ jobs:
       - run: flutter analyze
       - run: flutter test --coverage
       - uses: codecov/codecov-action@v1
-      - run: flutter packages pub publish --dry-run
+
+      - name: "Read pubspec.yaml"
+        id: pubspec
+        run: >
+          ruby -ryaml -e
+          '
+          print "::set-output name=publish_to::",
+          YAML.load_file("pubspec.yaml")["publish_to"]
+          '
+      - name: "Validate the package for publishing"
+        run: flutter packages pub publish --dry-run
+        if: steps.pubspec.outputs.publish_to != 'none'
+
+      - name: "Determine OS to test the package on"
+        id: determine_check_os
+        run: |
+          check_os='"ubuntu-latest"'
+          if [ -e ios ]; then
+            check_os+=',"macOS-latest"'
+          fi
+          if [ -e android ]; then
+            check_os+=',"windows-latest"'
+          fi
+          echo "::set-output name=os_list::[${check_os}]"
 
   build:
     needs: check
     strategy:
       fail-fast: false
       matrix:
-        os: [macOS-latest, ubuntu-latest, windows-latest]
+        os: ${{ fromJson(needs.check.outputs.check_os) }}
         flutter_channel: [beta, stable]
-        include:
-          - os: macOS-latest
-            flutter_build: ios --no-codesign
-            marker: ios/*.podspec
-          - os: ubuntu-latest
-            flutter_build: apk
-            marker: example/lib/main.dart
-          - os: windows-latest
-            flutter_build: apk
-            marker: android/build.gradle
     env:
       GRADLE_OPTS: -Dorg.gradle.daemon=false
     runs-on: ${{ matrix.os }}
@@ -56,12 +71,9 @@ jobs:
       - uses: subosito/flutter-action@v1
         with:
           channel: ${{ matrix.flutter_channel }}
-        # Run only if a marker file exists. This indicates that the package
-        # should be tested against this environment.
-        if: hashFiles(matrix.marker) != ''
 
       - working-directory: example
-        run: flutter build ${{ matrix.flutter_build }} --debug
-        # Run only if a marker file exists. This indicates that the package
-        # should be tested against this environment.
-        if: hashFiles(matrix.marker) != ''
+        run: >
+          flutter build
+          ${{ runner.os == 'macOS' && 'ios --no-codesign' || 'apk' }}
+          --debug
